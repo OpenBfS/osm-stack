@@ -1,0 +1,91 @@
+--- app/infrastructure/ors-utils-service.js
++++ app/infrastructure/ors-utils-service.js
+@@ -260,19 +260,19 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
+       let orsSettingsFactory = $injector.get("orsSettingsFactory");
+       if (!reverse) {
+         payload = {
+-          text: obj,
++          q: obj,
+           lang: language,
+-          size: limit,
+-          "focus.point.lat": orsSettingsFactory.getUserOptions().lat,
+-          "focus.point.lon": orsSettingsFactory.getUserOptions().lng
++          limit: limit,
++          "lat": orsSettingsFactory.getUserOptions().lat,
++          "lon": orsSettingsFactory.getUserOptions().lng
+         };
+       } else {
+         payload = {
+-          "point.lat": obj.split(", ")[1],
+-          "point.lon": obj.split(", ")[0],
++          "lat": obj.split(", ")[1],
++          "lon": obj.split(", ")[0],
+           // location: obj,
+           lang: language,
+-          size: 1
++          limit: 1
+         };
+       }
+       return payload;
+@@ -454,7 +454,7 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
+             : lists.isochroneOptionList.reverseFlow.start,
+         /*jshint +W014 */
+         profile: lists.profiles[settings.profile.type].request,
+-        attributes: "area|reachfactor|total_pop",
++        attributes: "area|reachfactor",
+         options: JSON.stringify(orsUtilsService.generateOptions(settings))
+       };
+       // remove options if empty
+@@ -530,42 +530,26 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
+           if (streetAddress.length > 0) {
+             feature.processed.primary = streetAddress.join(" ");
+           }
+-        } else if ("locality" in properties) {
+-          feature.processed.primary = properties.locality;
++        } else if ("city" in properties) {
++          feature.processed.primary = properties.city;
+         }
+         // secondary information
+         const secondary = [];
+-        if ("postalcode" in properties) {
++        if ("postcode" in properties) {
+           secondary.push(properties.postalcode);
+         }
+-        if ("neighbourhood" in properties) {
+-          secondary.push(properties.neighbourhood);
+-        }
+-        if ("borough" in properties) {
+-          secondary.push(properties.borough);
+-        }
+-        if (
+-          "locality" in properties &&
+-          properties.locality !== properties.name
+-        ) {
+-          secondary.push(properties.locality);
+-        }
+         if (
+-          "municipality" in properties &&
+-          properties.municipality !== properties.name &&
+-          properties.municipality !== properties.locality
++          "city" in properties &&
++          properties.city !== properties.name
+         ) {
+-          secondary.push(properties.municipality);
++          secondary.push(properties.city);
+         }
+         if (
+-          "county" in properties &&
+-          properties.county !== properties.name &&
+-          properties.county !== properties.locality
++          "state" in properties &&
++          properties.state !== properties.name &&
++          properties.state !== properties.locality
+         ) {
+-          secondary.push(properties.county);
+-        }
+-        if ("region" in properties && properties.region !== properties.name) {
+-          secondary.push(properties.region);
++          secondary.push(properties.state);
+         }
+         if ("country" in properties && properties.country !== properties.name) {
+           secondary.push(properties.country);

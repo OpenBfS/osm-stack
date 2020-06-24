@@ -1,0 +1,17 @@
+40c40
+< #master_rendering_timeout=10
+---
+> master_rendering_timeout=60
+43,45c43,45
+< bucket name=live       minprio=1  maxproc=4 maxload=20
+< bucket name=important  minprio=10 maxproc=3 maxload=8
+< bucket name=background minprio=20 maxproc=2 maxload=4
+---
+> bucket name=live       minprio=1  maxproc=6 maxload=20
+> bucket name=important  minprio=10 maxproc=5 maxload=8
+> bucket name=background minprio=20 maxproc=3 maxload=4
+60c60
+< #backend_manager_alive_timeout=8
+---
+> backend_manager_alive_timeout=59
+

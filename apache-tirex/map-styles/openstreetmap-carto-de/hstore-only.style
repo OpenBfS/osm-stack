@@ -1,0 +1,62 @@
+# hstore only Database schema which stores only objects
+# with one of the important tags defined here as nocolumn
+#
+# this does only make sence when --hstore-match-only ist used
+#
+# "important" are those tags which appear in the where clause of
+# select statements in the standard mapnik style
+#
+# import using the following command:
+# osm2pgsql -G -s -S <this-file> --hstore --tag-transform-script openstreetmap-carto.lua -p planet_osm_hstore <osm-or-pbf-file>
+#
+
+# OsmType  Tag          DataType     Flags
+node,way   access       text         linear,nocolumn
+node,way   addr:housename      text  linear,nocolumn
+node,way   addr:housenumber    text  linear,nocolumn
+way        addr:interpolation  text  linear,nocolumn
+node,way   admin_level  text         linear,nocolumn
+node,way   aerialway    text         linear,nocolumn
+node,way   aeroway      text         polygon,nocolumn
+node,way   amenity      text         polygon,nocolumn
+node,way   barrier      text         linear,nocolumn
+way        bicycle      text         linear,nocolumn
+way        bridge       text         linear,nocolumn
+node,way   boundary     text         linear,nocolumn
+node,way   building     text         polygon,nocolumn
+way        construction text         linear,nocolumn
+way        covered      text         linear,nocolumn
+way        foot         text         linear,nocolumn
+node,way   highway      text         linear,nocolumn
+node,way   historic     text         polygon,nocolumn
+way        horse        text         linear,nocolumn
+node,way   junction     text         linear,nocolumn
+node,way   landuse      text         polygon,nocolumn
+node,way   leisure      text         polygon,nocolumn
+node,way   lock         text         linear,nocolumn
+node,way   man_made     text         polygon,nocolumn
+node,way   military     text         polygon,nocolumn
+node,way   name         text         linear,nocolumn
+node,way   natural      text         polygon,nocolumn
+node,way   oneway       text         linear,nocolumn
+node,way   place        text         polygon,nocolumn
+node,way   power        text         polygon,nocolumn
+node,way   railway      text         linear,nocolumn
+node,way   ref          text         linear,nocolumn
+node,way   religion     text         linear,nocolumn
+way        route        text         linear,nocolumn
+way        service      text         linear,nocolumn
+node,way   shop         text         polygon,nocolumn
+way        surface      text         linear,nocolumn
+node,way   tourism      text         polygon,nocolumn
+way        tracktype    text         linear,nocolumn
+way        tunnel       text         linear,nocolumn
+node,way   water        text         polygon,nocolumn
+node,way   waterway     text         polygon,nocolumn
+
+node,way   layer        int4         linear
+way        way_area     real         linear # This is calculated during import
+
+# Columns defined in openstreetmap-carto.lua file
+node,way        z_order      int4         linear
+

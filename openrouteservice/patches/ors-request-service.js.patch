@@ -1,0 +1,11 @@
+--- app/infrastructure/ors-request-service.js
++++ app/infrastructure/ors-request-service.js
+@@ -99,7 +99,7 @@ angular.module("orsApp.request-service", []).factory("orsRequestService", [
+      */
+     orsRequestService.geocode = (requestData, reverse = false) => {
+       var url = ENV.geocode;
+-      url += reverse ? "/reverse" : "/autocomplete";
++      url += reverse ? "/reverse" : "/api";
+       var canceller = $q.defer();
+       var cancel = function(reason) {
+         canceller.resolve(reason);

@@ -1,0 +1,66 @@
+FROM openjdk:8-jdk
+
+# install xinetd to make it possible to add check_mk to the Docker container
+# procps (to be precise: the 'pgrep' binary) is required by the postinst script of check-mk-agent
+COPY thirdparty/check-mk-agent_1.5.0p24-1_all.deb /tmp/check-mk-agent.deb
+RUN apt-get -qq update && apt-get -qq upgrade -f && apt-get install -qq -y xinetd procps && dpkg -i /tmp/check-mk-agent.deb && rm /tmp/check-mk-agent.deb
+
+# Add custom checkmk checks
+COPY checkmk/openrouteservice-osm-data_* checkmk/openrouteservice-graph-update_* /usr/lib/check_mk_agent/local/
+
+RUN chmod a+x /usr/lib/check_mk_agent/local/openrouteservice*
+
+ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
+ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
+
+ARG APP_CONFIG
+ARG JAVA_OPTS
+ARG ORS_ZIP_URL_BASE=https://github.com/GIScience/openrouteservice/archive
+ARG ORS_BRANCH_TAG=v6.0.0
+ARG ORS_BRANCH_TAG_IN_ZIP=6.0.0
+ARG CATALINA_OPTS
+
+# Install required deps
+RUN apt-get install -qq -y bash locales maven python3 rsync
+
+# Set the locale
+RUN locale-gen en_US.UTF-8
+ENV LANG en_US.UTF-8
+ENV LANGUAGE en_US:en
+ENV LC_ALL en_US.UTF-8
+
+# Download Openrouteservice source code and build it
+RUN mkdir -p /ors-core/ && \
+    wget --quiet -O /ors.zip $ORS_ZIP_URL_BASE/$ORS_BRANCH_TAG.zip && \
+    unzip -q -d /ors-core/ /ors.zip && mv /ors-core/openrouteservice-$ORS_BRANCH_TAG_IN_ZIP/openrouteservice/ /ors-core/openrouteservice/ && \
+    rm -rf  /ors-core/openrouteservice-$ORS_BRANCH_TAG_IN_ZIP/* && \
+    rm /ors.zip
+
+# Copy osm data file, config and cache if provided (ors will download otherwise)
+COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
+
+WORKDIR /ors-core
+
+# Build Openrouteservice
+# Install tomcat
+# Add tomcat custom settings if provided
+RUN mvn -q -f ./openrouteservice/pom.xml package -DskipTests && \
+    mkdir /usr/local/tomcat && wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.0.32/bin/apache-tomcat-8.0.32.tar.gz -O /tmp/tomcat.tar.gz && \
+    cd /tmp && tar xfz tomcat.tar.gz && cp -R /tmp/apache-tomcat-8.0.32/* /usr/local/tomcat/ && \
+    mv /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war && \
+    touch /usr/local/tomcat/bin/setenv.sh && echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh && echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
+
+COPY run_and_update.py run_tomcat_update_and_xinetd.sh /
+
+RUN chmod 755 /run_tomcat_update_and_xinetd.sh && \
+    echo "A SSH key will be copied into a Docker volume mounted at /ssh-private-keys in the next step. It will fail if you have not created this file yet! Please see the subsection \"SSH-Schlüssel\" in the chapter \"Routing\" in the setup guide for further details."
+
+# Copy SSH private key
+COPY id_root_ed25519 /ssh-private-keys/id_root_ed25519
+
+# Copy empty .osm.pbf file to make OpenRouteService start properly
+COPY empty.osm.pbf /var/data/osm-data/osm_file.pbf
+
+# Start the container
+EXPOSE 8080
+CMD /run_tomcat_update_and_xinetd.sh

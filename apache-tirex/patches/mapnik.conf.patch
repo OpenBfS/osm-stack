@@ -1,0 +1,13 @@
+24c24
+< procs=3
+---
+> procs=6
+43c43
+< fontdir=/usr/lib/mapnik/fonts
+---
+> fontdir=/usr/share/fonts/
+47c47
+< #fontdir_recurse=0
+---
+> fontdir_recurse=1
+
