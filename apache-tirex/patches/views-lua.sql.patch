@@ -1,0 +1,78 @@
+107c107
+< -- Name: view_osmde_line; Type: VIEW; Schema: public; Owner: postgres
+---
+> -- Name: view_osmde_line; Type: VIEW; Schema: public; Owner: ${DB_SUPERUSER}
+164c164
+< ALTER TABLE view_osmde_line OWNER TO postgres;
+---
+> ALTER TABLE view_osmde_line OWNER TO ${DB_SUPERUSER};
+167c167
+< -- Name: view_osmde_point; Type: VIEW; Schema: public; Owner: osm
+---
+> -- Name: view_osmde_point; Type: VIEW; Schema: public; Owner: ${DB_USER}
+224c224
+< ALTER TABLE view_osmde_point OWNER TO osm;
+---
+> ALTER TABLE view_osmde_point OWNER TO ${DB_USER};
+227c227
+< -- Name: view_osmde_polygon; Type: VIEW; Schema: public; Owner: postgres
+---
+> -- Name: view_osmde_polygon; Type: VIEW; Schema: public; Owner: ${DB_SUPERUSER}
+289c289
+< ALTER TABLE view_osmde_polygon OWNER TO postgres;
+---
+> ALTER TABLE view_osmde_polygon OWNER TO ${DB_SUPERUSER};
+292c292
+< -- Name: view_osmde_roads; Type: VIEW; Schema: public; Owner: postgres
+---
+> -- Name: view_osmde_roads; Type: VIEW; Schema: public; Owner: ${DB_SUPERUSER}
+335c335
+< ALTER TABLE view_osmde_roads OWNER TO postgres;
+---
+> ALTER TABLE view_osmde_roads OWNER TO ${DB_SUPERUSER};
+338c338
+< -- Name: view_osmde_line; Type: ACL; Schema: public; Owner: postgres
+---
+> -- Name: view_osmde_line; Type: ACL; Schema: public; Owner: ${DB_SUPERUSER}
+342,344c342,344
+< REVOKE ALL ON TABLE view_osmde_line FROM postgres;
+< GRANT ALL ON TABLE view_osmde_line TO postgres;
+< GRANT ALL ON TABLE view_osmde_line TO osm;
+---
+> REVOKE ALL ON TABLE view_osmde_line FROM ${DB_SUPERUSER};
+> GRANT ALL ON TABLE view_osmde_line TO ${DB_SUPERUSER};
+> GRANT ALL ON TABLE view_osmde_line TO ${DB_USER};
+348c348
+< -- Name: view_osmde_point; Type: ACL; Schema: public; Owner: osm
+---
+> -- Name: view_osmde_point; Type: ACL; Schema: public; Owner: ${DB_USER}
+352,353c352,353
+< REVOKE ALL ON TABLE view_osmde_point FROM osm;
+< GRANT ALL ON TABLE view_osmde_point TO osm;
+---
+> REVOKE ALL ON TABLE view_osmde_point FROM ${DB_USER};
+> GRANT ALL ON TABLE view_osmde_point TO ${DB_USER};
+357c357
+< -- Name: view_osmde_polygon; Type: ACL; Schema: public; Owner: postgres
+---
+> -- Name: view_osmde_polygon; Type: ACL; Schema: public; Owner: ${DB_SUPERUSER}
+361,363c361,363
+< REVOKE ALL ON TABLE view_osmde_polygon FROM postgres;
+< GRANT ALL ON TABLE view_osmde_polygon TO postgres;
+< GRANT ALL ON TABLE view_osmde_polygon TO osm;
+---
+> REVOKE ALL ON TABLE view_osmde_polygon FROM ${DB_SUPERUSER};
+> GRANT ALL ON TABLE view_osmde_polygon TO ${DB_SUPERUSER};
+> GRANT ALL ON TABLE view_osmde_polygon TO ${DB_USER};
+367c367
+< -- Name: view_osmde_roads; Type: ACL; Schema: public; Owner: postgres
+---
+> -- Name: view_osmde_roads; Type: ACL; Schema: public; Owner: ${DB_SUPERUSER}
+371,373c371,373
+< REVOKE ALL ON TABLE view_osmde_roads FROM postgres;
+< GRANT ALL ON TABLE view_osmde_roads TO postgres;
+< GRANT ALL ON TABLE view_osmde_roads TO osm;
+---
+> REVOKE ALL ON TABLE view_osmde_roads FROM ${DB_SUPERUSER};
+> GRANT ALL ON TABLE view_osmde_roads TO ${DB_SUPERUSER};
+> GRANT ALL ON TABLE view_osmde_roads TO ${DB_USER};

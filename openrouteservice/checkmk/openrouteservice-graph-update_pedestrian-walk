@@ -1,0 +1,34 @@
+#! /usr/bin/env python3
+
+import time
+import os
+import os.path
+
+scriptname = os.path.basename(__file__)
+profile = scriptname.split('_')[-1]
+
+if '.' in profile:
+    print('UNKNOWN {} - Routing profile should not contain a dot. Script name should end with \'_PROFILE\', not \'.py\' where PROFILE is the profile')
+    exit(1)
+
+ERROR_THRESHOLD = 2 * 24 * 3600
+WARN_THRESHOLD = 0.6 * ERROR_THRESHOLD
+
+error_hours = ERROR_THRESHOLD / 3600.0
+warn_hours = ERROR_THRESHOLD / 3600.0
+
+mod = os.path.getmtime('/var/data/graphs/{}/properties'.format(profile))
+now = time.time()
+diff = now - mod
+age_hours = diff / 3600.0
+
+status = 'OK'
+detail = status
+if diff > WARN_THRESHOLD:
+    status = 'WARN'
+    detail = 'Graph regeneration more than {} hours ago'.format(int(warn_hours))
+if diff > ERROR_THRESHOLD:
+    status = 'CRIT'
+    detail = 'Graph regeneration more than {} hours ago'.format(int(error_hours))
+
+print('{} {} age_hours={};{};{} {}'.format(status, scriptname, profile, age_hours, warn_hours, error_hours, detail))

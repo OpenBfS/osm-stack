@@ -1,0 +1,9 @@
+33,34c33,37
+<     dbname: "gis"
+<     user: osm
+---
+>     dbname: "${DB_NAME}"
+>     host: "${DB_HOST}"
+>     port: "${DB_PORT}"
+>     user: "${DB_USER}"
+>     password: "${DB_PASSWORD}"

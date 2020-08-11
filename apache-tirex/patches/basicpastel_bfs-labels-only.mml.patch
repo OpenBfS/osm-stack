@@ -1,0 +1,18 @@
+33,34c33,37
+<     dbname: "gis"
+<     user: "michael"
+---
+>     dbname: "${DB_NAME}"
+>     host: "${DB_HOST}"
+>     port: "${DB_PORT}"
+>     user: "${DB_USER}"
+>     password: "${DB_PASSWORD}"
+40,41c43,47
+<     dbname: "contours"
+<     user: "michael"
+---
+>     dbname: "${DB_NAME_CONTOURS}"
+>     host: "${DB_HOST}"
+>     port: "${DB_PORT}"
+>     user: "${DB_SUPERUSER}"
+>     password: "${DB_PASSWORD}"
