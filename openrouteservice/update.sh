@@ -31,7 +31,9 @@ LAST_UPDATE_FILE=$DATA_DIR/last_ors_update
 UPDATE_NECESSARY=0
 
 function write_update_timestamp {
-    date +%s > $LAST_UPDATE_FILE
+    TIMESTAMP=$1
+    echo "$TIMESTAMP" > $LAST_UPDATE_FILE
+    echo "$TIMESTAMP" > $DATA_DIR/latest/complete
 }
 
 function check_update_necessary {
@@ -49,12 +51,31 @@ function check_update_necessary {
 }
 
 function delete_old_data_dirs {
-    for DIR in `find $DATA_DIR/ -maxdepth 1 -type d -mtime +2 | grep -v latest | sort -n | head --lines=-1`; do
+    NOW=$(date +%s)
+    for DIR in `find $DATA_DIR/ -maxdepth 1 -type d | grep -v latest | sort -n | head --lines=-1`; do
+        # Get age of the directory
+        if [[ "$DIR" =~ [0-9]+/?$ ]] ; then
+            true
+        else
+            continue
+        fi
+	FOUND_TIME=0
+        FOUND_TIME=$(cat $DIR/complete) || true
+        if [[ "$FOUND_TIME" =~ ^[0-9]+$ ]] ; then
+            DIFF=$(expr $NOW - $FOUND_TIME)
+        else
+            DIFF=$NOW
+        fi
+        MAX_DIFF=$(( $UPDATE_INTERVAL * 2 ))
+        if [ "$DIFF" -lt $MAX_DIFF ] ; then
+            continue
+        fi
         # Check if there are lockfiles (*.lock)
-        LOCKS_COUNT=$(ls $DATA_DIR/$DIR/*.lock 2> /dev/null | wc -l) || true
-        if [ "$LOCKS_COUNT" -eq 0 ] && [ -f "$DATA_DIR/$DIR/complete" ] ; then
-            echo "Deleting $DATA_DIR/$DIR"
-            rm -rf "$DATA_DIR/$DIR"
+        LOCKS_COUNT=0
+        LOCKS_COUNT=$(ls $DIR/*.lock 2> /dev/null | wc -l) || true
+        if [ "$LOCKS_COUNT" -eq 0 ] && [ -f "$DIR/complete" ] ; then
+            echo "Deleting $DIR"
+            rm -rf "$DIR"
         fi
     done
 }
@@ -71,8 +92,6 @@ function prepare_data_dir {
 function prepare_data_dir_for_next_update {
     CURRENT_SEC=$(date +%s)
     mkdir $DATA_DIR/$CURRENT_SEC
-    # Copy existing data to new directory
-    touch $DATA_DIR/latest/complete
     # Change symlink now
     rm $DATA_DIR/latest && ln -s $DATA_DIR/$CURRENT_SEC $DATA_DIR/latest
 }
@@ -96,6 +115,7 @@ while true ; do
         sleep $UPDATE_RECHECK_INTERVAL
         continue
     fi
+    TIMESTAMP_UPDATE_START=$(date +%s)
     delete_old_data_dirs
     echo "Updating planet"
     while true; do
@@ -132,7 +152,13 @@ while true ; do
     echo "Running Openrouteservice GraphBuilder"
     # Das doppelte Angeben des Pfades zur Konfigurationsdatei ist erforderlich, da es sonst eine NullPointerException schmeißt (Bug im Openrouteservice).
     $JAVA -Dlog4j.configurationFile=$LOGGING_CONFIG -Dors_app_config=$ORS_CONFIG -jar $JAR_FILE $ORS_CONFIG
-    write_update_timestamp
+    for PROFILE in `jq .ors.services.routing.profiles.active[] $ORS_CONFIG | tr -d '"'` ; do
+        if [ ! -f "$DATA_DIR/latest/$PROFILE/nodes" ] ; then
+            echo "ERROR: It seems that the ORS import for profile $PROFILE was unsuccessful because the $DATA_DIR/latest/$PROFILE/nodes is missing. Exiting."
+	    exit 1
+	fi
+    done
+    write_update_timestamp $TIMESTAMP_UPDATE_START
     echo "Prepare data directory for next update"
     prepare_data_dir_for_next_update
     UPDATE_NECESSARY=0

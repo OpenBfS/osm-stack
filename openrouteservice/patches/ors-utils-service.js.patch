@@ -1,5 +1,5 @@
---- app/infrastructure/ors-utils-service.js
-+++ app/infrastructure/ors-utils-service.js
+--- a/app/infrastructure/ors-utils-service.js
++++ b/app/infrastructure/ors-utils-service.js
 @@ -260,19 +260,19 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
        let orsSettingsFactory = $injector.get("orsSettingsFactory");
        if (!reverse) {
@@ -36,7 +36,7 @@
          options: JSON.stringify(orsUtilsService.generateOptions(settings))
        };
        // remove options if empty
-@@ -530,42 +530,26 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
+@@ -530,47 +530,33 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
            if (streetAddress.length > 0) {
              feature.processed.primary = streetAddress.join(" ");
            }
@@ -57,35 +57,45 @@
 -        if ("borough" in properties) {
 -          secondary.push(properties.borough);
 -        }
--        if (
+         if (
 -          "locality" in properties &&
 -          properties.locality !== properties.name
--        ) {
++          "city" in properties &&
++          properties.city !== properties.name
+         ) {
 -          secondary.push(properties.locality);
--        }
++          secondary.push(properties.city);
+         }
          if (
 -          "municipality" in properties &&
 -          properties.municipality !== properties.name &&
 -          properties.municipality !== properties.locality
-+          "city" in properties &&
-+          properties.city !== properties.name
-         ) {
--          secondary.push(properties.municipality);
-+          secondary.push(properties.city);
-         }
-         if (
--          "county" in properties &&
--          properties.county !== properties.name &&
--          properties.county !== properties.locality
 +          "state" in properties &&
 +          properties.state !== properties.name &&
 +          properties.state !== properties.locality
          ) {
+-          secondary.push(properties.municipality);
++          secondary.push(properties.state);
+         }
+-        if (
+-          "county" in properties &&
+-          properties.county !== properties.name &&
+-          properties.county !== properties.locality
+-        ) {
 -          secondary.push(properties.county);
 -        }
 -        if ("region" in properties && properties.region !== properties.name) {
 -          secondary.push(properties.region);
-+          secondary.push(properties.state);
-         }
-         if ("country" in properties && properties.country !== properties.name) {
+-        }
+-        if ("country" in properties && properties.country !== properties.name) {
++        /*if ("country" in properties && properties.country !== properties.name &&
++          properties.country !== properties.state) {
            secondary.push(properties.country);
+-        }
+-        if (secondary.length <= 1 && properties.country !== properties.name)
++        }*/
++        if (secondary.length <= 1 && properties.country !== properties.name &&
++	    properties.country !== properties.state)
+           secondary.push(properties.country);
+         feature.processed.secondary = secondary.join(", ");
+         feature.processed.place_type = properties.layer;

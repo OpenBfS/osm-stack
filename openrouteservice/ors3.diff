@@ -1,0 +1,25 @@
+diff --git a/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfileType.java b/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfileType.java
+index 471df10c..0591f599 100644
+--- a/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfileType.java
++++ b/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfileType.java
+@@ -13,9 +13,12 @@
+  */
+ package org.heigit.ors.routing;
+ 
++import org.apache.log4j.Logger;
++import org.heigit.ors.api.requests.matrix.MatrixRequestHandler;
+ import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+ 
+ public class RoutingProfileType {
++    private static final Logger LOGGER = Logger.getLogger(RoutingProfileType.class.getName());
+     public static final int UNKNOWN = 0;
+ 
+     // DRIVING STUFF
+@@ -161,6 +164,7 @@ public class RoutingProfileType {
+     }
+ 
+     public static int getFromString(String profileType) {
++        LOGGER.error("RoutingProfileType.getFromString(" + profileType + ")");
+         switch (profileType.toLowerCase()) {
+             case "driving-car":
+                 return DRIVING_CAR;

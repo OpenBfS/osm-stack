@@ -49,7 +49,7 @@
 -        const outdoors = L.tileLayer(orsNamespaces.layerOutdoors.url, {
 -          attribution: orsNamespaces.layerOutdoors.attribution,
 -          id: 6
-+        const osmLabelsOnly = L.tileLayer(ENV.tileLayers.labelsOnly, {
++        const osmLabelsOnly = L.tileLayer(ENV.tileLayers.labelsOverlay, {
 +          attribution: orsNamespaces.layerOSM.attribution,
 +          id: 4
          });

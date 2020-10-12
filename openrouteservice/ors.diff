@@ -1,0 +1,30 @@
+diff --git a/openrouteservice/src/main/java/org/heigit/ors/api/requests/common/APIEnums.java b/openrouteservice/src/main/java/org/heigit/ors/api/requests/common/APIEnums.java
+index 7b0cf1ef..8199d3ca 100644
+--- a/openrouteservice/src/main/java/org/heigit/ors/api/requests/common/APIEnums.java
++++ b/openrouteservice/src/main/java/org/heigit/ors/api/requests/common/APIEnums.java
+@@ -23,7 +23,11 @@ import io.swagger.annotations.ApiModel;
+ 
+ import static org.heigit.ors.api.errors.GenericErrorCodes.INVALID_PARAMETER_VALUE;
+ 
++import org.apache.log4j.Logger;
++import org.heigit.ors.api.requests.matrix.MatrixRequestHandler;
++
+ public class APIEnums {
++    private static final Logger LOGGER = Logger.getLogger(APIEnums.class.getName());
+     @ApiModel(value = "Specify which type of border crossing to avoid")
+     public enum AvoidBorders {
+         ALL("all"),
+@@ -249,11 +253,13 @@ public class APIEnums {
+         private final String value;
+ 
+         Profile(String value) {
++            LOGGER.error("new Profile(): |" + value + "|");
+             this.value = value;
+         }
+ 
+         @JsonCreator
+         public static Profile forValue(String v) throws ParameterValueException {
++            LOGGER.error("Profile ERROR: |" + v + "|");
+             for (Profile enumItem : Profile.values()) {
+                 if (enumItem.value.equals(v))
+                     return enumItem;

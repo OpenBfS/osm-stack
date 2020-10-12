@@ -1,0 +1,61 @@
+diff --git a/openrouteservice/src/main/java/org/heigit/ors/api/requests/matrix/MatrixRequestHandler.java b/openrouteservice/src/main/java/org/heigit/ors/api/requests/matrix/MatrixRequestHandler.java
+index 449eb5a2..f3f23db2 100644
+--- a/openrouteservice/src/main/java/org/heigit/ors/api/requests/matrix/MatrixRequestHandler.java
++++ b/openrouteservice/src/main/java/org/heigit/ors/api/requests/matrix/MatrixRequestHandler.java
+@@ -18,6 +18,7 @@ package org.heigit.ors.api.requests.matrix;
+ import com.vividsolutions.jts.geom.Coordinate;
+ import com.vividsolutions.jts.geom.Polygon;
+ 
++import org.apache.log4j.Logger;
+ import org.heigit.ors.api.requests.common.APIEnums;
+ import org.heigit.ors.api.requests.common.GenericHandler;
+ import org.heigit.ors.api.requests.routing.RouteRequest;
+@@ -43,7 +44,9 @@ import org.json.simple.JSONObject;
+ import java.util.ArrayList;
+ import java.util.List;
+ 
++
+ public class MatrixRequestHandler extends GenericHandler {
++    private static final Logger LOGGER = Logger.getLogger(MatrixRequestHandler.class.getName());
+     public MatrixRequestHandler() throws InternalServerException {
+         super();
+         this.errorCodes.put("UNKNOWN_PARAMETER", RoutingErrorCodes.UNKNOWN_PARAMETER);
+@@ -87,7 +90,7 @@ public class MatrixRequestHandler extends GenericHandler {
+         int destinations = request.getDestinations() == null ? request.getLocations().size() : request.getDestinations().length;
+         Coordinate[] locations = convertLocations(request.getLocations(), sources * destinations);
+ 
+-        coreRequest.setProfileType(convertToMatrixProfileType(request.getProfile()));
++//        coreRequest.setProfileType(convertToMatrixProfileType(request.getProfile()));
+ 
+         if (request.hasMetrics())
+             coreRequest.setMetrics(convertMetrics(request.getMetrics()));
+@@ -114,6 +117,15 @@ public class MatrixRequestHandler extends GenericHandler {
+         if (request.hasRouteOptions()) {
+             params = processRouteRequestOptions(request, params);
+         }
++
++        int profileType = -1;
++        try {
++            profileType = convertRouteProfileType(request.getProfile());
++            params.setProfileType(profileType);
++        } catch (Exception e) {
++            throw new ParameterValueException(RoutingErrorCodes.INVALID_PARAMETER_VALUE, RouteRequest.PARAM_PROFILE);
++        }
++        
+         coreRequest.setSearchParameters(params);
+ 
+         return coreRequest;
+@@ -204,11 +216,11 @@ public class MatrixRequestHandler extends GenericHandler {
+         try {
+             int profileFromString = RoutingProfileType.getFromString(profile.toString());
+             if (profileFromString == 0) {
+-                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
++                throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE + "_null");
+             }
+             return profileFromString;
+         } catch (Exception e) {
+-            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE);
++            throw new ParameterValueException(MatrixErrorCodes.INVALID_PARAMETER_VALUE, MatrixRequest.PARAM_PROFILE + "X");
+         }
+     }
+ }

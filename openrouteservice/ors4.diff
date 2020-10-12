@@ -1,0 +1,31 @@
+diff --git a/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfile.java b/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfile.java
+index c7aed246..f6345347 100644
+--- a/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfile.java
++++ b/openrouteservice/src/main/java/org/heigit/ors/routing/RoutingProfile.java
+@@ -46,6 +46,7 @@ import org.heigit.ors.matrix.algorithms.MatrixAlgorithm;
+ import org.heigit.ors.matrix.algorithms.MatrixAlgorithmFactory;
+ import org.heigit.ors.routing.configuration.RouteProfileConfiguration;
+ import org.heigit.ors.routing.graphhopper.extensions.*;
++import org.heigit.ors.routing.graphhopper.extensions.flagencoders.FlagEncoderNames;
+ import org.heigit.ors.routing.graphhopper.extensions.storages.GraphStorageUtils;
+ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.BordersGraphStorageBuilder;
+ import org.heigit.ors.routing.graphhopper.extensions.storages.builders.GraphStorageBuilder;
+@@ -590,7 +591,8 @@ public class RoutingProfile {
+         MatrixResult mtxResult = null;
+ 
+         GraphHopper gh = getGraphhopper();
+-        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
++//        String encoderName = RoutingProfileType.getEncoderName(req.getProfileType());
++        String encoderName = FlagEncoderNames.CAR_ORS;
+         FlagEncoder flagEncoder = gh.getEncodingManager().getEncoder(encoderName);
+ 
+         MatrixAlgorithm alg = MatrixAlgorithmFactory.createAlgorithm(req, gh);
+@@ -639,7 +641,7 @@ public class RoutingProfile {
+         int profileType = searchParams.getProfileType();
+         String encoderName = RoutingProfileType.getEncoderName(profileType);
+ 
+-        if ("UNKNOWN".equals(encoderName))
++        if ("UNKNOWN".  equals(encoderName))
+             throw new InternalServerException(RoutingErrorCodes.UNKNOWN, "unknown vehicle profile.");
+ 
+         if (!mGraphHopper.getEncodingManager().hasEncoder(encoderName)) {

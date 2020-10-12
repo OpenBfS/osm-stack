@@ -39,7 +39,9 @@ function set_replication_url {
 }
 
 function write_update_timestamp {
-    date +%s > $LAST_NOM_UPDATE_FILE
+    TIMESTAMP=$1
+    echo "$TIMESTAMP" > $LAST_NOM_UPDATE_FILE
+    echo "$TIMESTAMP" > $PHOTON_DATA/latest/complete
 }
 
 function check_update_necessary {
@@ -57,12 +59,31 @@ function check_update_necessary {
 }
 
 function delete_old_data_dirs {
-    for DIR in `find $PHOTON_DATA/ -maxdepth 1 -type d -mtime +2 | grep -v latest | sort -n | head --lines=-1`; do
+    NOW=$(date +%s)
+    for DIR in `find $PHOTON_DATA/ -maxdepth 1 -type d | grep -v latest | sort -n | head --lines=-1`; do
+        # Get age of the directory
+        if [[ "$DIR" =~ [0-9]+/?$ ]] ; then
+            true
+        else
+            continue
+        fi
+        FOUND_TIME=0
+        FOUND_TIME=$(cat $DIR/complete) || true
+        if [[ "$FOUND_TIME" =~ ^[0-9]+$ ]] ; then
+            DIFF=$(expr $NOW - $FOUND_TIME)
+        else
+            DIFF=$NOW
+        fi
+        MAX_DIFF=$(( $UPDATE_INTERVAL * 2 ))
+        if [ "$DIFF" -lt $MAX_DIFF ] ; then
+            continue
+        fi
         # Check if there are lockfiles (*.lock)
-        LOCKS_COUNT=$(ls $PHOTON_DATA/$DIR/*.lock 2> /dev/null | wc -l) || true
-        if [ "$LOCKS_COUNT" -eq 0 ] && [ -f "$PHOTON_DATA/$DIR/complete" ] ; then
-            echo "Deleting $PHOTON_DATA/$DIR"
-            rm -rf "$PHOTON_DATA/$DIR"
+        LOCKS_COUNT=0
+        LOCKS_COUNT=$(ls $DIR/*.lock 2> /dev/null | wc -l) || true
+        if [ "$LOCKS_COUNT" -eq 0 ] && [ -f "$DIR/complete" ] ; then
+            echo "Deleting $DIR"
+            rm -rf "$DIR"
         fi
     done
 }
@@ -84,7 +105,6 @@ function prepare_photon_for_next_update {
     mkdir $PHOTON_DATA/$CURRENT_SEC
     # Copy existing data to new directory
     cp -r $PHOTON_DATA/latest/* $PHOTON_DATA/$CURRENT_SEC
-    touch $PHOTON_DATA/latest/complete
     # Change symlink now
     rm $PHOTON_DATA/latest && ln -s $PHOTON_DATA/$CURRENT_SEC $PHOTON_DATA/latest
 }
@@ -131,6 +151,7 @@ while true ; do
         fi
     fi
     if [ "$FIRST_RUN" -eq 1 ]; then
+        TIMESTAMP_UPDATE_START=$(date +%s)
         psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "CREATE TABLE bfs_status (status INTEGER);" || ( echo "ERROR: Failed to create database table bfs_status. This error usually occurs if the previous import failed."; exit 1)
         echo "Starting Nominatim import. This can take two days for a full planet import."
         /usr/bin/php utils/setup.php --osm-file $PLANET_FILE --setup-db --import-data --reverse-only \
@@ -146,6 +167,7 @@ while true ; do
             -port $DB_PORT -data-dir $PHOTON_DATA/latest
         echo "Nominatim: Prepare database for updates"
         /usr/bin/php utils/update.php --init-updates
+        write_update_timestamp $TIMESTAMP_UPDATE_START
         echo "Prepare Photon database for next update"
         prepare_photon_for_next_update
         FIRST_RUN=0
@@ -153,9 +175,10 @@ while true ; do
         check_update_necessary
         delete_old_data_dirs
         if [ "$UPDATE_NECESSARY" = "1" ]; then
+            TIMESTAMP_UPDATE_START=$(date +%s)
             echo "Let Nominatim fetch updates and apply them."
             /usr/bin/php utils/update.php --import-osmosis --no-index
-            write_update_timestamp
+            write_update_timestamp $TIMESTAMP_UPDATE_START
             echo "Photon: Fetch updates from Nominatim"
             /usr/bin/java -Xms$JAVA_MIN_MEM -Xmx$JAVA_MAX_MEM -jar $PHOTON_JAR_NAME -nominatim-update -host $DB_HOST \
             -port $DB_PORT -database $DB_NAME -password $DB_PASSWORD -languages de,en \

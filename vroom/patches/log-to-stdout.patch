@@ -1,0 +1,17 @@
+diff --git a/src/index.js b/src/index.js
+index deebb00..5bdb9ea 100644
+--- a/src/index.js
++++ b/src/index.js
+@@ -29,11 +29,7 @@ const args = config.cliArgs;
+ app.use(bodyParser.json({limit: args.limit}));
+ app.use(bodyParser.urlencoded({extended: true, limit: args.limit}));
+ 
+-const accessLogStream = fs.createWriteStream(args.logdir + '/access.log', {
+-  flags: 'a'
+-});
+-
+-app.use(morgan('combined', {stream: accessLogStream}));
++app.use(morgan('combined', {}));
+ 
+ app.use(helmet());
+ 

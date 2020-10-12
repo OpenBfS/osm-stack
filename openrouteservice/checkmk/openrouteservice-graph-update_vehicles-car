@@ -17,7 +17,7 @@ WARN_THRESHOLD = 0.6 * ERROR_THRESHOLD
 error_hours = ERROR_THRESHOLD / 3600.0
 warn_hours = ERROR_THRESHOLD / 3600.0
 
-mod = os.path.getmtime('/var/data/graphs/{}/properties'.format(profile))
+mod = os.path.getmtime('/data/openrouteservice/{}/properties'.format(profile))
 now = time.time()
 diff = now - mod
 age_hours = diff / 3600.0

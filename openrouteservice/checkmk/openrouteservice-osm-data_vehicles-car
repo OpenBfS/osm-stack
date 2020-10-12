@@ -23,7 +23,7 @@ mod = 0
 # the properties file contains some blobs which are are invalid UTF-8.
 # Therefore, we have to read it binary and decode it ourselves.
 data = b''
-with open('/var/data/graphs/{}/properties'.format(profile), 'rb') as propsfile:
+with open('/data/openrouteservice/{}/properties'.format(profile), 'rb') as propsfile:
     data = propsfile.read()
     last = 0
     line = None

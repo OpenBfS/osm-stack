@@ -15,13 +15,13 @@ ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -Dinstall
 
 ARG APP_CONFIG
 ARG JAVA_OPTS
-ARG ORS_ZIP_URL_BASE=https://github.com/GIScience/openrouteservice/archive
-ARG ORS_BRANCH_TAG=v6.0.0
-ARG ORS_BRANCH_TAG_IN_ZIP=6.0.0
+ARG ORS_ZIP_URL_BASE
+ARG ORS_BRANCH_TAG
+ARG ORS_BRANCH_TAG_IN_ZIP
 ARG CATALINA_OPTS
 
 # Install required deps
-RUN apt-get install -qq -y bash locales maven python3 rsync
+RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -38,6 +38,8 @@ RUN mkdir -p /ors-core/ && \
 
 # Copy osm data file, config and cache if provided (ors will download otherwise)
 COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
+
+COPY ors.diff ors2.diff ors3.diff ors4.diff /ors-core/openrouteservice/
 
 WORKDIR /ors-core
 

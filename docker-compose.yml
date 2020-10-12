@@ -4,6 +4,7 @@ services:
     build:
       context: bfs-postgres
     image: ${REGISTRY_HOST}bfs/postgis:12-3.0
+    restart: always
     environment:
       - POSTGRES_PASSWORD=avast-humour-verboten-modesty
       - POSTGRES_MASTER=1
@@ -22,6 +23,7 @@ services:
     build:
       context: bfs-postgres
     image: ${REGISTRY_HOST}bfs/postgis:12-3.0
+    restart: always
     environment:
       - POSTGRES_PASSWORD=slaver-unsettle-november-say
       - POSTGRES_MASTER_HOST=${MASTER_HOST:-postgres-master}
@@ -37,6 +39,7 @@ services:
     build:
       context: geoserver
     image: ${REGISTRY_HOST}bfs/geoserver:2.17.0
+    restart: always
     ports:
       - 8082:8080
     networks:
@@ -47,6 +50,7 @@ services:
     build:
       context: geoserver
     image: ${REGISTRY_HOST}bfs/geoserver:2.17.0
+    restart: always
     ports:
       - 8082:8080
     networks:
@@ -59,6 +63,7 @@ services:
     build:
       context: osm2pgsql
     image: ${REGISTRY_HOST}bfs/osm2pgsql:1.2.1_1
+    restart: always
     environment:
       - POSTGRES_DB=osm
       # Use the public hostname of the host where postgres-master is running if
@@ -84,6 +89,7 @@ services:
       args:
         NOMINATIM_TARBALL_URL: 'https://nominatim.org/release/Nominatim-3.5.1.tar.bz2'
     image: ${REGISTRY_HOST}bfs/nominatim-postgres-postgis:3.5.1-12-3.0
+    restart: always
     environment:
       - NOMINATIM_DIR=/nominatim
       - POSTGRES_PASSWORD=avast-humour-verboten-modesty
@@ -103,6 +109,7 @@ services:
         PHOTON_ZIP_URL_BASE: 'https://github.com/komoot/photon/archive'
         PHOTON_BRANCH_TAG: '126c5445329bf0c50f131b2cb4b98fb7abef1f37'
     image: ${REGISTRY_HOST}bfs/nominatim-photon-master:3.5.1-0.3.2
+    restart: always
     environment:
       - PHOTON_JAR_NAME=/photon/target/photon-0.3.2.jar
       - PLANET_SOURCE=https://download.geofabrik.de/europe/liechtenstein-latest.osm.pbf
@@ -131,6 +138,7 @@ services:
     build:
       context: data-master
     image: ${REGISTRY_HOST}bfs/data:1.0
+    restart: always
     environment:
       - DATA_MASTER_SSH_PORT=${MASTER_PORT:-2222}
     volumes:
@@ -148,6 +156,7 @@ services:
         PHOTON_ZIP_URL_BASE: 'https://github.com/komoot/photon/archive'
         PHOTON_BRANCH_TAG: '126c5445329bf0c50f131b2cb4b98fb7abef1f37'
     image: ${REGISTRY_HOST}bfs/nominatim-photon-slave:3.5.1-0.3.2
+    restart: always
     environment:
       - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
       - MASTER_PORT=${MASTER_PORT:-2222}
@@ -162,10 +171,11 @@ services:
       args:
         APP_CONFIG: 'bfs.config'
         JAVA_OPTS: '-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms16g -Xmx16g'
-        ORS_ZIP_URL_BASE: 'https://github.com/GIScience/openrouteservice/archive'
-        ORS_BRANCH_TAG: 'v6.0.0'
-        ORS_BRANCH_TAG_IN_ZIP: '6.0.0'
-    image: ${REGISTRY_HOST}bfs/openrouteservice-import:v6.0.0
+        ORS_ZIP_URL_BASE: 'https://github.com/Nakaner/openrouteservice/archive'
+        ORS_BRANCH_TAG: 'matrix-avoid-areas'
+        ORS_BRANCH_TAG_IN_ZIP: 'matrix-avoid-areas'
+    image: ${REGISTRY_HOST}bfs/openrouteservice-import:matrix-avoid-areas
+    restart: always
     environment:
       - JAVA_OPTS="-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms8g -Xmx28g"
       - JAR_FILE=/ors-core/openrouteservice/target/ors-jar-with-dependencies.jar
@@ -183,10 +193,14 @@ services:
       context: 'openrouteservice'
       dockerfile: 'Dockerfile_app'
       args:
+        ORS_ZIP_URL_BASE: 'https://github.com/Nakaner/openrouteservice/archive'
+        ORS_BRANCH_TAG: 'matrix-avoid-areas'
+        ORS_BRANCH_TAG_IN_ZIP: 'matrix-avoid-areas'
         APP_CONFIG: 'bfs.config'
         # Die bauzeitliche Umgebungsvariable JAVA_OPTS wird in /usr/local/tomcat/bin/setenv.sh geschrieben und ist somit eine Umgebungsvariable für Tomcat.
         JAVA_OPTS: '-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx16g'
     image: ${REGISTRY_HOST}bfs/openrouteservice-app:v6.0.0
+    restart: always
     environment:
       - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
       - MASTER_PORT=${MASTER_PORT:-2222}
@@ -197,6 +211,23 @@ services:
       - openrouteservice_tomcat_logs:/urs/local/tomcat/logs
       - openrouteservice_ors_logs:/urs/local/ors/logs
       - ssh-private-keys:/ssh-private-keys
+  vroom:
+    build:
+      context: 'vroom'
+      args:
+        VROOM_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom/archive'
+        VROOM_BRANCH_TAG: 'experiment/avoid-areas'
+        VROOM_BRANCH_TAG_IN_ZIP: 'experiment-avoid-areas'
+        VROOM_EXPRESS_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom-express/archive'
+        VROOM_EXPRESS_BRANCH_TAG: 'v0.7.0'
+        VROOM_EXPRESS_BRANCH_TAG_IN_ZIP: '0.7.0'
+        VROOM_EXPRESS_CONFIG: 'vroom-express-config.yml'
+    image: ${REGISTRY_HOST}bfs/vroom:v1.7.0
+    restart: always
+    volumes:
+      - vroom_tmp:/var/lib/vroom-express/tmp
+    depends_on:
+      - openrouteservice-app
   openrouteservice-proxy:
     build:
       context: openrouteservice
@@ -211,6 +242,7 @@ services:
         TILE_URLBASE_LABELS: '/tiles/bfs-labels-only'
         GEOCODE_URL_BASE: '/ors/geocode'
     image: ${REGISTRY_HOST}bfs/openrouteservice-proxy:2.4
+    restart: always
     ports:
       - 8083:80
     depends_on:
@@ -220,6 +252,7 @@ services:
       context: http-proxy
       dockerfile: 'Dockerfile'
     image: ${REGISTRY_HOST}bfs/http-proxy:2.4
+    restart: always
     ports:
       - 8084:80
     depends_on:
@@ -228,6 +261,7 @@ services:
     build:
       context: apache-tirex
     image: ${REGISTRY_HOST}bfs/apache-tirex:2.4.29-0.6.3
+    restart: always
     environment:
       - DB_HOST=${SERVICE_HOST:-postgres-follower}
       - DB_PORT=5432
@@ -251,6 +285,7 @@ services:
 
   monitoring:
     image: checkmk/check-mk-raw:1.5.0-latest
+    restart: always
     environment:
       - CMK_PASSWORD=das-wort-heisst-nukular
     ports:
@@ -285,6 +320,7 @@ volumes:
   openrouteservice_tomcat_logs:
   openrouteservice_ors_logs:
   openrouteservice_webapp:
+  vroom_tmp:
   geoserver-config:
   postgres-master-dataset:
   postgres-follower-dataset:
