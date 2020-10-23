@@ -37,7 +37,7 @@ initialize() {
 	ATABS=""
 	IFS=", " read -ra RT <<< "$REPL_TABLES" # Unpack list of tables into array
 	for t in "${RT[@]}"; do
-		ATABS="$ATABS ALTER TABLE $t REPLICA IDENTITY FULL;"
+		ATABS="$ATABS ALTER TABLE $t ADD COLUMN id SERIAL PRIMARY KEY; ALTER TABLE $t REPLICA IDENTITY DEFAULT;"
 	done
 
 	psql -c "
