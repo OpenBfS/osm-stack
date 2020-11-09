@@ -25,7 +25,7 @@
 
 
 #amenity-points, #amenity-points-poly {
-  [feature = 'aeroway_aerodrome'][zoom >= 11][zoom < 15] {
+  [feature = 'aeroway_aerodrome'][zoom >= 12][zoom < 15] {
     marker-file: url('symbols/aerodrome.12.svg');
     marker-placement: interior;
     marker-clip: false;
@@ -93,7 +93,7 @@
 	}
 
 
-  [feature = 'aeroway_aerodrome'][zoom >= 11][zoom < 15] {
+  [feature = 'aeroway_aerodrome'][zoom >= 12][zoom < 15] {
     text-name: "[name]";
     text-size: @standard-text-size;
     text-fill: darken(@airtransport, 15%);
