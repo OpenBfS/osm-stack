@@ -21,14 +21,14 @@ RUN sed -i 's/#work_mem.*/work_mem = 128MB/g' /usr/share/postgresql/postgresql.c
 RUN sed -i 's/#mainentenance_work_mem.*/mainentenance_work_mem = 256MB/g' /usr/share/postgresql/postgresql.conf.sample
 
 
-#configure log_rotate
-RUN sed -i "s/#log_destination.*/log_destination = 'stderr'/g" /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#logging_collector = off.*/logging_collector = on/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i "s/#log_directory =.*/log_directory = 'pg_log'/g" /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i "s/#log_filename =.*/log_filename = 'postgresql-%a.log'/g" /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#log_truncate_on_rotation = off.*/log_truncate_on_rotation = on/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#log_rotation_age =.*/log_rotation_age = 1d/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i "s/#log_rotation_size = 0\nlog_line_prefix = '%m|%u%%%d: '\nlog_timezone = 'Europe/Berlin'/g" /usr/share/postgresql/postgresql.conf.sample
+##configure log_rotate
+#RUN sed -i "s/#log_destination.*/log_destination = 'stderr'/g" /usr/share/postgresql/postgresql.conf.sample
+#RUN sed -i 's/#logging_collector = off.*/logging_collector = on/g' /usr/share/postgresql/postgresql.conf.sample
+#RUN sed -i "s/#log_directory =.*/log_directory = 'pg_log'/g" /usr/share/postgresql/postgresql.conf.sample
+#RUN sed -i "s/#log_filename =.*/log_filename = 'postgresql-%a.log'/g" /usr/share/postgresql/postgresql.conf.sample
+#RUN sed -i 's/#log_truncate_on_rotation = off.*/log_truncate_on_rotation = on/g' /usr/share/postgresql/postgresql.conf.sample
+#RUN sed -i 's/#log_rotation_age =.*/log_rotation_age = 1d/g' /usr/share/postgresql/postgresql.conf.sample
+#RUN sed -i "s/#log_rotation_size = 0\nlog_line_prefix = '%m|%u%%%d: '\nlog_timezone = 'Europe/Berlin'/g" /usr/share/postgresql/postgresql.conf.sample
 
 COPY replication.sh /docker-entrypoint-initdb.d/replication.sh
 
