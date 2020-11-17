@@ -70,7 +70,7 @@ services:
       # postgres-master runs on a diferent host. Mind that running
       # postgres-master on osm2pgsql on different machines is not recommended
       # for performance reasons.
-      - POSTGRES_MASTER_HOST=postgres-master
+      }- POSTGRES_MASTER_HOST=postgres-master
       - POSTGRES_MASTER_PORT=5432 # switch to 5433 if osm2pgsql is running on a different host than postgres-master
       - POSTGRES_MASTER_USER=osm
       - POSTGRES_MASTER_PASSWORD=${OSM2PGSQL_POSTGRES_MASTER_PASSWORD}
@@ -298,7 +298,7 @@ services:
       - ./checkmk-master/sites:/omd/sites
     restart: always
     networks:
-      - pgnet
+      - pgnet_osm
 
 
 volumes:
