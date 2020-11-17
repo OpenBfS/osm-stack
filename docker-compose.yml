@@ -6,15 +6,15 @@ services:
     image: ${REGISTRY_HOST}bfs/postgis:12-3.0
     restart: always
     environment:
-      - POSTGRES_PASSWORD=avast-humour-verboten-modesty
+      - POSTGRES_PASSWORD=${POSTGRES_MASTER_PASSWORD}
       - POSTGRES_MASTER=1
-      - POSTGRES_MASTER_REPL_PASSWORD=beeth-belady-minima-liming
-      - POSTGRES_OSM_PASSWORD=unworn-titre-tara-sarod
+      - POSTGRES_MASTER_REPL_PASSWORD=${POSTGRES_MASTER_REPL_PASSWORD}
+      - POSTGRES_OSM_PASSWORD=${POSTGRES_MASTER_OSM_PASSWORD}
     ports:
       - 6559:6556
       - 5433:5432
     networks:
-      pgnet:
+      pgnet_osm:
         aliases:
           - postgres
     volumes:
@@ -25,12 +25,12 @@ services:
     image: ${REGISTRY_HOST}bfs/postgis:12-3.0
     restart: always
     environment:
-      - POSTGRES_PASSWORD=slaver-unsettle-november-say
+      - POSTGRES_PASSWORD=${POSTGRES_FOLLOWER_PASSWORD}
       - POSTGRES_MASTER_HOST=${MASTER_HOST:-postgres-master}
-      - POSTGRES_MASTER_REPL_PASSWORD=beeth-belady-minima-liming
-      - POSTGRES_OSM_PASSWORD=faced-whimmy-horde-lipper-fennig
+      - POSTGRES_MASTER_REPL_PASSWORD=${POSTGRES_MASTER_REPL_PASSWORD}
+      - POSTGRES_OSM_PASSWORD=${POSTGRES_FOLLOWER_OSM_PASSWORD}
     networks:
-      pgnet:
+      pgnet_osm:
         aliases:
           - postgres
     volumes:
@@ -43,7 +43,7 @@ services:
     ports:
       - 8082:8080
     networks:
-      - pgnet
+      - pgnet_osm
     volumes:
       - geoserver-config:/var/local/geoserver/workspaces/
   geoserver-slave:
@@ -54,7 +54,7 @@ services:
     ports:
       - 8082:8080
     networks:
-      - pgnet
+      - pgnet_osm
     environment:
       - GEOSERVER_REPLICA=1
       - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
@@ -73,15 +73,15 @@ services:
       - POSTGRES_MASTER_HOST=postgres-master
       - POSTGRES_MASTER_PORT=5432 # switch to 5433 if osm2pgsql is running on a different host than postgres-master
       - POSTGRES_MASTER_USER=osm
-      - POSTGRES_MASTER_PASSWORD=unworn-titre-tara-sarod
-      - PLANET_SOURCE=https://download.geofabrik.de/europe/germany-latest.osm.pbf
-      - PLANET_REPL_URL=http://download.geofabrik.de/europe/germany-updates
+      - POSTGRES_MASTER_PASSWORD=${OSM2PGSQL_POSTGRES_MASTER_PASSWORD}
+      - PLANET_SOURCE=${OSM2PGSQL_PLANET_SOURCE}
+      - PLANET_REPL_URL=${OSM2PGSQL_PLANET_REPL_URL}
       - OSM2PGSQL_CACHE=4000
       - FLAT_NODES=0
     volumes:
       - osmpbf:/osmpbf
     networks:
-      - pgnet
+      - pgnet_osm
   nominatim-postgres-master:
     build:
       context: bfs-postgres
@@ -91,10 +91,10 @@ services:
     image: ${REGISTRY_HOST}bfs/nominatim-postgres-postgis:3.5.1-12-3.0
     restart: always
     environment:
-      - NOMINATIM_DIR=/nominatim
-      - POSTGRES_PASSWORD=avast-humour-verboten-modesty
+      - NOMINATIM_DIR=/nominatim # currently overwritten by nominatim/run.sh
+      - POSTGRES_PASSWORD=${POSTGRES_MASTER_PASSWORD}
       - POSTGRES_MASTER=1
-      - PGNET=10.11.128.0/24
+      - PGNET=${PGNET_NOMINATIM}
     ports:
       - 6557:6556
     networks:
@@ -112,7 +112,7 @@ services:
     restart: always
     environment:
       - PHOTON_JAR_NAME=/photon/target/photon-0.3.2.jar
-      - PLANET_SOURCE=https://download.geofabrik.de/europe/germany-latest.osm.pbf
+      - PLANET_SOURCE=${PHOTON_MASTER_PLANET_SOURCE}
       - OSM2PGSQL_CACHE=4000
       - JAVA_MIN_MEM=200m
       - JAVA_MAX_MEM=32g
@@ -123,7 +123,7 @@ services:
       - DB_NAME=nominatim
       - DB_PORT=5432
       - DB_USER=nominatim
-      - DB_PASSWORD=WynEbGe9q6dAsf
+      - DB_PASSWORD=${PHOTON_MASTER_DB_PASSWORD}
       - PGPASS=/.pgpass
       - FLAT_NODES=0
     volumes:
@@ -179,8 +179,8 @@ services:
     environment:
       - JAVA_OPTS="-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms8g -Xmx28g"
       - JAR_FILE=/ors-core/openrouteservice/target/ors-jar-with-dependencies.jar
-      - PLANET_SOURCE=https://download.geofabrik.de/europe-latest.osm.pbf
-      - POLY_FILE=germany-100km.poly
+      - PLANET_SOURCE=${ORS_IMPORT_PLANET_SOURCE}
+      - POLY_FILE=${ORS_IMPORT_POLY_FILE}
       - UPDATE_INTERVAL=86400
       - UPDATE_RECHECK_INTERVAL=900
     volumes:
@@ -268,12 +268,12 @@ services:
       - DB_NAME=osm
       - DB_USER=osm
       - DB_SUPERUSER=osm
-      - DB_PASSWORD=faced-whimmy-horde-lipper-fennig
+      - DB_PASSWORD=${TILE_WEB_DB_PASSWORD}
       - DB_TABLE_GERMAN_TILED=german_tiled
       - DB_NAME_CONTOURS=contours
-      - CONTOURS_URL=https://kunden.geofabrik.de/8852d88888bb1245d889ff5847027816/contours-germany.sql.gz
-      - HILLSHADE_URL=https://kunden.geofabrik.de/8852d88888bb1245d889ff5847027816/hillshade-germany.tar.gz
-      - TMS_TOPPLUSOPEN_URL=https://sgx.geodatenzentrum.de/wmts_topplus_open/tile/1.0.0/web_grau/default/WEBMERCATOR/{z}/{y}/{x}.png
+      - CONTOURS_URL=${TILE_WEB_CONTOURS_URL}
+      - HILLSHADE_URL=${TILE_WEB_HILLSHADE_URL}
+      - TMS_TOPPLUSOPEN_URL=${TILE_WEB_TMS_TOPPLUSOPEN_URL}
     ports:
       - 8081:80
       - 6558:6556
@@ -287,7 +287,7 @@ services:
     image: checkmk/check-mk-raw:1.5.0-latest
     restart: always
     environment:
-      - CMK_PASSWORD=das-wort-heisst-nukular
+      - CMK_PASSWORD=${CMK_PASSWORD}
     ports:
       - 8090:5000
     ulimits:
@@ -327,11 +327,11 @@ volumes:
   nominatim-postgres-dataset:
 
 networks:
-  pgnet:
+  pgnet_osm:
     ipam:
       config:
-        - subnet: 10.11.11.0/24
+        - subnet: ${PGNET_OSM}
   pgnet_nominatim:
     ipam:
       config:
-        - subnet: 10.11.128.0/24
+        - subnet: ${PGNET_NOMINATIM}
