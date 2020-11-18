@@ -56,7 +56,7 @@ settings = {
 
     3: {
         'directory': 'ne_110m_admin_0_boundary_lines_land',
-        'url': 'http://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip',  # noqa
+        'url': 'https://naciscdn.org/naturalearth/110m/cultural/ne_110m_admin_0_boundary_lines_land.zip',  # noqa
         'type': 'zip_dir',
         'shp_basename': ['ne_110m_admin_0_boundary_lines_land'],
         'long_opt': '--ne-admin'
