@@ -9,6 +9,7 @@ RUN apt-get update -y && \
     echo "A SSH public key will be copied into a Docker volume mounted at /ssh-authorized-keys in the next step. It will fail if you have not created this file yet! Please see the subsection \"SSH-Schlüssel\" in the chapter \"Geocoding\" in the setup guide for further details."
 
 COPY id_root_ed25519 /ssh-private-keys/id_root_ed25519
+RUN chmod 0600 /ssh-private-keys/id_root_ed25519
 
 RUN rm -rf /root/.ssh && mkdir -p /ssh-private-keys/.ssh && chmod 755 /ssh-private-keys/.ssh && ln -s /ssh-private-keys/.ssh /root/.ssh
 

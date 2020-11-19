@@ -59,7 +59,8 @@ RUN chmod 755 /run_tomcat_update_and_xinetd.sh && \
 
 # Copy SSH private key
 COPY id_root_ed25519 /ssh-private-keys/id_root_ed25519
-
+RUN chmod 0600 /ssh-private-keys/id_root_ed25519
+ 
 # Create /data
 RUN mkdir -p /data/osm-data && mkdir -p /data/openrouteservice
 

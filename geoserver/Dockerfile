@@ -5,6 +5,7 @@ COPY workspaces/ /var/local/geoserver/workspaces/
 
 RUN apt-get update && apt-get install -y rsync wait-for-it && apt-get install -y --no-install-recommends postgresql-client
 COPY id_root_ed25519 /ssh-private-keys/id_root_ed25519
+RUN chmod 0600 /ssh-private-keys/id_root_ed25519
 COPY replicate.sh /replicate.sh
 COPY run.sh /run.sh
 
