@@ -15,7 +15,7 @@ REPL_TABLES="planet_osm_point, planet_osm_line, planet_osm_roads, planet_osm_pol
 OSM2PGSQL_OPTIONS="-G -S /openstreetmap-carto.style --hstore --tag-transform-script /openstreetmap-carto.lua -C ${OSM2PGSQL_CACHE} --slim --database $POSTGRES_DB -H $POSTGRES_MASTER_HOST -U $POSTGRES_MASTER_USER -P $POSTGRES_MASTER_PORT"
 
 if [[ $FLAT_NODES == 1 ]]; then
-	OSM2PGSQL_OPTIONS=$OSM2PGSQL_OPTIONS" --flat-nodes"
+	OSM2PGSQL_OPTIONS=$OSM2PGSQL_OPTIONS" --flat-nodes /flatnodes/flat.nodes"
 fi
 
 postgres_ready() {

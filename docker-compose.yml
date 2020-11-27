@@ -80,6 +80,7 @@ services:
       - FLAT_NODES=0
     volumes:
       - osmpbf:/osmpbf
+      - osm2pgsql_flatnodes:/flatnodes
     networks:
       - pgnet_osm
   nominatim-postgres-master:
@@ -125,7 +126,7 @@ services:
       - DB_USER=nominatim
       - DB_PASSWORD=${PHOTON_MASTER_DB_PASSWORD}
       - PGPASS=/.pgpass
-      - FLAT_NODES=0
+      - FLAT_NODES=1
     volumes:
       - nominatim-osmdata:/osmdata
       - nominatim-flatnodes:/flatnodes
@@ -303,6 +304,7 @@ services:
 
 volumes:
   osmpbf:
+  osm2pgsql_flatnodes:
   nominatim-osmdata:
   nominatim-flatnodes:
   photon-data:
