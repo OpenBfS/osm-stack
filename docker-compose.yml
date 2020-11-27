@@ -77,7 +77,7 @@ services:
       - PLANET_SOURCE=${OSM2PGSQL_PLANET_SOURCE}
       - PLANET_REPL_URL=${OSM2PGSQL_PLANET_REPL_URL}
       - OSM2PGSQL_CACHE=4000
-      - FLAT_NODES=0
+      - FLAT_NODES=1
     volumes:
       - osmpbf:/osmpbf
       - osm2pgsql_flatnodes:/flatnodes
