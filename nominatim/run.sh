@@ -25,19 +25,6 @@ function write_pgpass {
     chmod 600 /root/.pgpass
 }
 
-# We need to set the REPLICATION_URL environment variable because Nomiantim does not retrieve it from the
-# .osm.pbf file itself.
-function set_replication_url {
-    if [ ! -v REPLICATION_URL ] || [ false ] ; then
-        export REPLICATION_URL=$(osmium fileinfo --get header.option.osmosis_replication_base_url "$PLANET_FILE") \
-            || (echo "ERROR: Failed to retriev replication URL from OSM raw data file located at $PLANET_FILE. Please specifiy it using the environment variable REPLICATION_URL."; exit 1)
-    fi
-    if [ "$REPLICATION_URL" = "" ] ; then
-        echo "ERROR: REPLICATION_URL is empty. Please specify it as environment variable for this container."
-        exit 1
-    fi
-}
-
 function write_update_timestamp {
     TIMESTAMP=$1
     echo "$TIMESTAMP" > $LAST_NOM_UPDATE_FILE
@@ -116,7 +103,7 @@ fi
 
 if [ ! -f "$PLANET_FILE" ]; then
     echo "Downloading the .osm.pbf file from $PLANET_SOURCE because it does not exist ..."
-    wget -O "$PLANET_FILE" "$PLANET_SOURCE"
+    wget --progress=dot:giga -O "$PLANET_FILE" "$PLANET_SOURCE"
 else
     echo "Skipping download from $PLANET_SOURCE because $PLANET_FILE exists already."
 fi
@@ -124,7 +111,6 @@ fi
 cd $NOMINATIM_DIR/build
 
 write_pgpass
-set_replication_url
 
 wait-for-it -t 0 ${DB_HOST}:${DB_PORT}
 # Check that user account in the database exists
@@ -150,15 +136,33 @@ while true ; do
             fi
         fi
     fi
+    if [ -z ${NOMINATIM_THREAD_COUNT:-} ] ; then
+        echo "WARNING: NOMINATIM_THREAD_COUNT is not set, using number of CPUs of this system."
+        NOMINATIM_THREAD_COUNT=$(nproc)
+    fi
     if [ "$FIRST_RUN" -eq 1 ]; then
         TIMESTAMP_UPDATE_START=$(date +%s)
         psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "CREATE TABLE bfs_status (status INTEGER);" || ( echo "ERROR: Failed to create database table bfs_status. This error usually occurs if the previous import failed."; exit 1)
-        echo "Starting Nominatim import. This can take two days for a full planet import."
+
+        echo "Modifying Postgres settings for import:"
+        psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "ALTER SYSTEM SET fsync=off;" || ( echo "ERROR: Failed to set postgres fsync"; exit 1)
+        psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "ALTER SYSTEM SET full_page_writes=off;" || ( echo "ERROR: Failed to set postgres full_page_writes"; exit 1)
+        psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "SELECT pg_reload_conf();" || ( echo "ERROR: Failed to reload postgres"; exit 1)
+        wait-for-it -t 0 ${DB_HOST}:${DB_PORT} # paranoia check
+
+        echo "Starting Nominatim import, using $NOMINATIM_THREAD_COUNT threads. This can take two days for a full planet import."
         /usr/bin/php utils/setup.php --osm-file $PLANET_FILE --setup-db --import-data --reverse-only \
             --osm2pgsql-cache $OSM2PGSQL_CACHE --create-functions --create-tables \
             --create-partition-tables --create-partition-functions --load-data --calculate-postcodes \
-            --index --create-search-indices --create-country-names --enable-diff-updates && \
+            --index --create-search-indices --create-country-names --enable-diff-updates \
+            --threads $NOMINATIM_THREAD_COUNT && \
             psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "INSERT INTO bfs_status VALUES (1);"
+
+        echo "Resetting Postgres settings for production:"
+        psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "ALTER SYSTEM RESET ALL;" || ( echo "ERROR: Failed to set reset postgres settings"; exit 1)
+        psql -U ${DB_USER} -d ${DB_NAME} -h ${DB_HOST} -tAc "SELECT pg_reload_conf();" || ( echo "ERROR: Failed to reload postgres"; exit 1)
+        wait-for-it -t 0 ${DB_HOST}:${DB_PORT} # paranoia check
+
         echo "Preparing Photon data directory"
         prepare_photon_data_dir
         echo "Photon: initial Nominatim import"

@@ -13,6 +13,10 @@ COPY thirdparty/mk_postgres /usr/lib/check_mk_agent/plugins/mk_postgres
 RUN mkdir -p /nominatim && cd /nominatim && wget --quiet -O nominatim.tar.bz2 $NOMINATIM_TARBALL_URL && tar -xjf nominatim.tar.bz2 &&  mv Nominatim-*/* . && rm -rf Nominatim-* && rm nominatim.tar.bz2 && mkdir -p build && cd build && cmake .. && make -s -j2 nominatim_lib
 
 RUN sed -i 's/#wal_level.*/wal_level = logical/g' /usr/share/postgresql/postgresql.conf.sample
+RUN sed -i 's/#shared_buffers.*/shared_buffers = 16GB/g' /usr/share/postgresql/postgresql.conf.sample
+RUN sed -i 's/#work_mem.*/work_mem = 128MB/g' /usr/share/postgresql/postgresql.conf.sample
+RUN sed -i 's/#mainentenance_work_mem.*/mainentenance_work_mem = 256MB/g' /usr/share/postgresql/postgresql.conf.sample
+
 COPY init_nominatim.sh /docker-entrypoint-initdb.d/init_nominatim.sh
 
 COPY entrypoint.sh /entrypoint.sh

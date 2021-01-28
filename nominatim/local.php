@@ -14,6 +14,5 @@ if (getenv('REPLICATION_URL') === FALSE) {
 //@define('CONST_Replication_Url', 'http://download.geofabrik.de/europe/germany/bremen-updates');
 // If you want to use HTTPS for download.geofabrik.de although the .osm.pbf file sets http://, comment out the next line.
 @define('CONST_Replication_Url', preg_replace('/^http:\/\/download\.geofabrik\.de\//', 'https://download.geofabrik.de/', getenv('REPLICATION_URL')));
-@define('CONST_Replication_Url', getenv('REPLICATION_URL'));
 @define('CONST_Replication_Update_Interval', getenv('UPDATE_INTERVAL') ?? '86400');
 @define('CONST_Replication_Recheck_Interval', getenv('UPDATE_RECHECK_INTERVAL') ?? '900');

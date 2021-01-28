@@ -5,6 +5,7 @@ services:
       context: bfs-postgres
     image: ${REGISTRY_HOST}bfs/postgis:12-3.0
     restart: always
+    shm_size: 17g
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_MASTER_PASSWORD}
       - POSTGRES_MASTER=1
@@ -76,7 +77,7 @@ services:
       - POSTGRES_MASTER_PASSWORD=${OSM2PGSQL_POSTGRES_MASTER_PASSWORD}
       - PLANET_SOURCE=${OSM2PGSQL_PLANET_SOURCE}
       - PLANET_REPL_URL=${OSM2PGSQL_PLANET_REPL_URL}
-      - OSM2PGSQL_CACHE=4000
+      - OSM2PGSQL_CACHE=${OSM2PGSQL_CACHE}
       - FLAT_NODES=1
     volumes:
       - osmpbf:/osmpbf
@@ -88,9 +89,10 @@ services:
       context: bfs-postgres
       dockerfile: 'Dockerfile_with_nominatim'
       args:
-        NOMINATIM_TARBALL_URL: 'https://nominatim.org/release/Nominatim-3.5.1.tar.bz2'
-    image: ${REGISTRY_HOST}bfs/nominatim-postgres-postgis:3.5.1-12-3.0
+        NOMINATIM_TARBALL_URL: 'https://nominatim.org/release/Nominatim-3.6.0.tar.bz2'
+    image: ${REGISTRY_HOST}bfs/nominatim-postgres-postgis:3.6.0-12-3.0
     restart: always
+    shm_size: 17g
     environment:
       - NOMINATIM_DIR=/nominatim # currently overwritten by nominatim/run.sh
       - POSTGRES_PASSWORD=${POSTGRES_MASTER_PASSWORD}
@@ -106,14 +108,15 @@ services:
     build:
       context: nominatim
       args:
-        NOMINATIM_TARBALL_URL: 'https://nominatim.org/release/Nominatim-3.5.1.tar.bz2'
+        NOMINATIM_TARBALL_URL: 'https://nominatim.org/release/Nominatim-3.6.0.tar.bz2'
         PHOTON_ZIP_URL_BASE: 'https://github.com/komoot/photon/archive'
         PHOTON_BRANCH_TAG: '126c5445329bf0c50f131b2cb4b98fb7abef1f37'
-    image: ${REGISTRY_HOST}bfs/nominatim-photon-master:3.5.1-0.3.2
+    image: ${REGISTRY_HOST}bfs/nominatim-photon-master:3.6.0-0.3.2
     restart: always
     environment:
       - PHOTON_JAR_NAME=/photon/target/photon-0.3.2.jar
       - PLANET_SOURCE=${PHOTON_MASTER_PLANET_SOURCE}
+      - REPLICATION_URL=${PHOTON_MASTER_REPL_URL}
       - OSM2PGSQL_CACHE=4000
       - JAVA_MIN_MEM=200m
       - JAVA_MAX_MEM=32g
@@ -127,6 +130,7 @@ services:
       - DB_PASSWORD=${PHOTON_MASTER_DB_PASSWORD}
       - PGPASS=/.pgpass
       - FLAT_NODES=1
+      - NOMINATIM_THREAD_COUNT=${NOMINATIM_THREAD_COUNT}
     volumes:
       - nominatim-osmdata:/osmdata
       - nominatim-flatnodes:/flatnodes

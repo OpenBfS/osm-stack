@@ -78,7 +78,7 @@ chmod 0600 ~/.pgpass
 
 while [[ 1 ]]; do
 	postgres_ready
-	if ! psql -A -t -c "SELECT 1 FROM planet_osm_point LIMIT 1;" -h $POSTGRES_MASTER_HOST -p $POSTGRES_MASTER_PORT $POSTGRES_DB $POSTGRES_MASTER_USER &> /dev/null; then
+	if ! psql -A -t -c "SELECT 1 FROM planet_osm_point LIMIT 1;" -h $POSTGRES_MASTER_HOST -p $POSTGRES_MASTER_PORT -d $POSTGRES_DB -U $POSTGRES_MASTER_USER &> /dev/null; then
 		initialize
 	else
 		if [[ $FIRST_RUN -eq 1 ]]; then
