@@ -110,11 +110,11 @@ services:
       args:
         NOMINATIM_TARBALL_URL: 'https://nominatim.org/release/Nominatim-3.6.0.tar.bz2'
         PHOTON_ZIP_URL_BASE: 'https://github.com/komoot/photon/archive'
-        PHOTON_BRANCH_TAG: '126c5445329bf0c50f131b2cb4b98fb7abef1f37'
-    image: ${REGISTRY_HOST}bfs/nominatim-photon-master:3.6.0-0.3.2
+        PHOTON_BRANCH_TAG: '0.3.4'
+    image: ${REGISTRY_HOST}bfs/nominatim-photon-master:3.6.0-0.3.4
     restart: always
     environment:
-      - PHOTON_JAR_NAME=/photon/target/photon-0.3.2.jar
+      - PHOTON_JAR_NAME=/photon/target/photon-0.3.4.jar
       - PLANET_SOURCE=${PHOTON_MASTER_PLANET_SOURCE}
       - REPLICATION_URL=${PHOTON_MASTER_REPL_URL}
       - OSM2PGSQL_CACHE=4000
@@ -157,15 +157,15 @@ services:
     build:
       context: photon-slave
       args:
-        PHOTON_VERSION: '0.3.2'
+        PHOTON_VERSION: '0.3.4'
         PHOTON_ZIP_URL_BASE: 'https://github.com/komoot/photon/archive'
-        PHOTON_BRANCH_TAG: '126c5445329bf0c50f131b2cb4b98fb7abef1f37'
-    image: ${REGISTRY_HOST}bfs/nominatim-photon-slave:3.5.1-0.3.2
+        PHOTON_BRANCH_TAG: '0.3.4'
+    image: ${REGISTRY_HOST}bfs/nominatim-photon-slave:3.5.1-0.3.4
     restart: always
     environment:
       - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
       - MASTER_PORT=${MASTER_PORT:-2222}
-      - PHOTON_VERSION=0.3.2
+      - PHOTON_VERSION=0.3.4
     volumes:
       - photon-data-slave:/photon-data
       - ssh-private-keys:/ssh-private-keys
