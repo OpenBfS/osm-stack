@@ -75,12 +75,20 @@ function delete_old_data_dirs {
     done
 }
 
-function prepare_photon_data_dir {
+function ensure_photon_data_dir {
     CURRENT_SEC=$(date +%s)
-    # Check if is already a symlink called "latest"
+    # If there is no symlink called "latest", the photon-data volume was deleted and we need to
+    # create all directories as if we would start from scratch.
     if [ ! -L "$PHOTON_DATA/latest" ]; then
+        echo "It seems that the photon data volume was removed since the last run. Recreating photon data directory and 'latest' symlink."
         mkdir $PHOTON_DATA/$CURRENT_SEC
         ln -s $PHOTON_DATA/$CURRENT_SEC $PHOTON_DATA/latest
+    fi
+}
+
+function prepare_photon_data_dir {
+    if [ ! -L "$PHOTON_DATA/latest" ]; then
+        prepare_photon_data_dir
     else
         echo "Deleting existing ElasticSearch data which is likely a leftover of a previous but failed Photon import."
         rm -rf "$PHOTON_DATA/latest/"*
@@ -94,6 +102,13 @@ function prepare_photon_for_next_update {
     cp -r $PHOTON_DATA/latest/* $PHOTON_DATA/$CURRENT_SEC
     # Change symlink now
     rm $PHOTON_DATA/latest && ln -s $PHOTON_DATA/$CURRENT_SEC $PHOTON_DATA/latest
+}
+
+function photon_full_import_from_nominatim {
+    echo "Photon: initial Nominatim import"
+    /usr/bin/java -Xms$JAVA_MIN_MEM -Xmx$JAVA_MAX_MEM -jar $PHOTON_JAR_NAME -nominatim-import -host $DB_HOST \
+        -database $DB_NAME -password $DB_PASSWORD -languages de,en \
+        -port $DB_PORT -data-dir $PHOTON_DATA/latest
 }
 
 if [ "$#" -ne 0 ]; then
@@ -165,6 +180,7 @@ while true ; do
 
         echo "Preparing Photon data directory"
         prepare_photon_data_dir
+        photon_full_import_from_nominatim
         echo "Photon: initial Nominatim import"
         /usr/bin/java -Xms$JAVA_MIN_MEM -Xmx$JAVA_MAX_MEM -jar $PHOTON_JAR_NAME -nominatim-import -host $DB_HOST \
             -database $DB_NAME -password $DB_PASSWORD -languages de,en \
@@ -176,17 +192,23 @@ while true ; do
         prepare_photon_for_next_update
         FIRST_RUN=0
     else
+        ensure_photon_data_dir
         check_update_necessary
         delete_old_data_dirs
         if [ "$UPDATE_NECESSARY" = "1" ]; then
             TIMESTAMP_UPDATE_START=$(date +%s)
             echo "Let Nominatim fetch updates and apply them."
             /usr/bin/php utils/update.php --import-osmosis --no-index
-            write_update_timestamp $TIMESTAMP_UPDATE_START
-            echo "Photon: Fetch updates from Nominatim"
-            /usr/bin/java -Xms$JAVA_MIN_MEM -Xmx$JAVA_MAX_MEM -jar $PHOTON_JAR_NAME -nominatim-update -host $DB_HOST \
-            -port $DB_PORT -database $DB_NAME -password $DB_PASSWORD -languages de,en \
-            -data-dir $PHOTON_DATA/latest
+            if [ -d "$PHOTON_DATA/latest/photon_data/elasticsearch" ]; then
+                echo "Photon: Fetch updates from Nominatim"
+                write_update_timestamp $TIMESTAMP_UPDATE_START
+                /usr/bin/java -Xms$JAVA_MIN_MEM -Xmx$JAVA_MAX_MEM -jar $PHOTON_JAR_NAME -nominatim-update -host $DB_HOST \
+                    -port $DB_PORT -database $DB_NAME -password $DB_PASSWORD -languages de,en \
+                    -data-dir $PHOTON_DATA/latest
+            else
+                photon_full_import_from_nominatim
+                write_update_timestamp $TIMESTAMP_UPDATE_START
+            fi
             echo "Prepare Photon database for next update"
             prepare_photon_for_next_update
         fi
