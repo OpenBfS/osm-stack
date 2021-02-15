@@ -181,10 +181,6 @@ while true ; do
         echo "Preparing Photon data directory"
         prepare_photon_data_dir
         photon_full_import_from_nominatim
-        echo "Photon: initial Nominatim import"
-        /usr/bin/java -Xms$JAVA_MIN_MEM -Xmx$JAVA_MAX_MEM -jar $PHOTON_JAR_NAME -nominatim-import -host $DB_HOST \
-            -database $DB_NAME -password $DB_PASSWORD -languages de,en \
-            -port $DB_PORT -data-dir $PHOTON_DATA/latest
         echo "Nominatim: Prepare database for updates"
         /usr/bin/php utils/update.php --init-updates
         write_update_timestamp $TIMESTAMP_UPDATE_START
