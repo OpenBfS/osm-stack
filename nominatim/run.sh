@@ -88,7 +88,7 @@ function ensure_photon_data_dir {
 
 function prepare_photon_data_dir {
     if [ ! -L "$PHOTON_DATA/latest" ]; then
-        prepare_photon_data_dir
+        ensure_photon_data_dir
     else
         echo "Deleting existing ElasticSearch data which is likely a leftover of a previous but failed Photon import."
         rm -rf "$PHOTON_DATA/latest/"*
