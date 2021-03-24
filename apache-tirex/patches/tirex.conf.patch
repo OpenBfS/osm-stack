@@ -1,7 +1,7 @@
 40c40
 < #master_rendering_timeout=10
 ---
-> master_rendering_timeout=60
+> master_rendering_timeout=120
 43,45c43,45
 < bucket name=live       minprio=1  maxproc=4 maxload=20
 < bucket name=important  minprio=10 maxproc=3 maxload=8
