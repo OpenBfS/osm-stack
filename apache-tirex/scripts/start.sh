@@ -1,4 +1,4 @@
-#!/bin/bash -xe
+#!/bin/bash -e
 
 PGPASSWORD=${DB_PASSWORD}
 PSQL="psql -d ${DB_NAME} -h ${DB_HOST} -p ${DB_PORT}"
@@ -43,10 +43,10 @@ cd /srv/hillshade
 HILLSHADE_DOWNLOAD=false
 HILLSHADE_SERVER_TS=$(last_modified_from_url ${HILLSHADE_URL})
 if [ -f timestamp ]; then
-    echo "former hillshade timestamp found"
+    echo "Former hillshade timestamp found"
     HILLSHADE_CURRENT_TS=`cat timestamp`
     if (( $HILLSHADE_SERVER_TS > $HILLSHADE_CURRENT_TS )); then
-        echo "newer hillshade file available!"
+        echo "Newer hillshade file available!"
         HILLSHADE_DOWNLOAD=true
     fi
 fi
@@ -54,21 +54,24 @@ if [ ! -d hillshade ]; then
     HILLSHADE_DOWNLOAD=true
 fi
 if ${HILLSHADE_DOWNLOAD}; then
-    echo "downloading hillshades"
+    echo "Downloading hillshades"
     wget  --progress=bar:force:noscroll -N ${HILLSHADE_URL}
     tar xzf ${HILLSHADE}
-    ln -sf /srv/hillshade/hillshade /srv/osm_basic_pastel_terrain/data/
     rm -f ${HILLSHADE}
     echo ${HILLSHADE_SERVER_TS} > timestamp
 else
-    echo "using existing hillshade data"
+    echo "Using existing hillshade data"
 fi
 
+ln -sf /srv/hillshade/hillshade /srv/osm_basic_pastel_terrain/data/
+
 # wait for database
+echo "Waiting for database ${DB_HOST}:${DB_PORT}"
 wait-for-it -t 0 ${DB_HOST}:${DB_PORT}
 
 # create contours database if it doesn't exist
 if ! db_exists ${DB_NAME_CONTOURS} || ! table_exists ${DB_NAME_CONTOURS} contours ; then
+    echo "Creating contours database"
     cd /srv/osm_basic_pastel_terrain/data
     wget  --progress=bar:force:noscroll -N ${CONTOURS_URL}
     dropdb   -h ${DB_HOST} -p ${DB_PORT} -U ${DB_SUPERUSER} --maintenance-db=${DB_NAME} --if-exists ${DB_NAME_CONTOURS}
@@ -83,6 +86,7 @@ fi
 COUNT=2
 while [ $COUNT -ge 2 ];
 do
+    echo "Waiting for postgres-follower to complete initial data copy"
     COUNT=`$PSQL -U ${DB_USER} -qtAX -c 'select count(*) from pg_stat_subscription'`
     sleep 1
 done
@@ -91,6 +95,7 @@ done
 COUNT=""
 while [ -z $COUNT ];
 do
+    echo "Waiting for postgres-follower tables to be accessible"
     COUNT=`$PSQL -U ${DB_USER} -qtAX -c "SELECT 1 FROM pg_tables WHERE tablename='planet_osm_line'"`
     sleep 1
 done
@@ -105,14 +110,19 @@ $PSQL -U ${DB_USER}        -f /srv/openstreetmap-carto-de/contrib/use-upstream-d
 $PSQL -U ${DB_USER}        -f /srv/openstreetmap-carto-de/contrib/use-upstream-database/view-polygon.sql
 $PSQL -U ${DB_USER}        -f /srv/openstreetmap-carto-de/contrib/use-upstream-database/view-roads.sql
 
+# initialize indexes (idempotent)
+$PSQL -U ${DB_USER}        -f /srv/common-files/combined-indexes.sql
+
 # create table ${DB_TABLE_GERMAN_TILED} if it doesn't exist
 COUNT=`$PSQL -U ${DB_USER} -qtAX -c "SELECT 1 FROM pg_tables WHERE tablename='${DB_TABLE_GERMAN_TILED}'"`
 if [ -z $COUNT ]; then
+    echo "Creating table ${DB_TABLE_GERMAN_TILED}"
     $PSQL -U ${DB_USER} -c "DROP TABLE IF EXISTS ${DB_TABLE_GERMAN_TILED}"
     cd /srv/openstreetmap-carto-de/
     shp2pgsql -s 3857 -cDI shapefiles/german_tiled.shp ${DB_TABLE_GERMAN_TILED} ${DB_NAME} | $PSQL -U ${DB_USER}
 fi
 
+echo "Starting services:"
 service xinetd start
 service rsyslog start
 service tirex-master start

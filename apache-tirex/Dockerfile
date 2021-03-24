@@ -45,6 +45,9 @@ COPY tirex-tms-styles/topplusopen.env.conf /etc/tirex/renderer/tms/templates/
 COPY map-styles/openstreetmap-carto-de /srv/openstreetmap-carto-de
 COPY map-styles/osm_basic_pastel_terrain /srv/osm_basic_pastel_terrain
 
+# copy common style files
+COPY map-styles/common-files /srv/common-files
+
 RUN mkdir /style-data && \
     ln -sf /style-data /srv/openstreetmap-carto-de/data && \
     ln -sf /style-data /srv/osm_basic_pastel_terrain/data
