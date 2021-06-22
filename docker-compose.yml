@@ -203,7 +203,7 @@ services:
         ORS_BRANCH_TAG_IN_ZIP: 'matrix-avoid-areas'
         APP_CONFIG: 'bfs.config'
         # Die bauzeitliche Umgebungsvariable JAVA_OPTS wird in /usr/local/tomcat/bin/setenv.sh geschrieben und ist somit eine Umgebungsvariable für Tomcat.
-        JAVA_OPTS: '-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms1g -Xmx32g'
+        JAVA_OPTS: '-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx32g'
     image: ${REGISTRY_HOST}bfs/openrouteservice-app:v6.0.0
     restart: always
     environment:
