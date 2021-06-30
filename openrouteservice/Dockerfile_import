@@ -34,6 +34,9 @@ COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
 
 WORKDIR /ors-core
 
+# set JAVA_HOME
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
+
 # Build Openrouteservice
 RUN mvn -q -f ./openrouteservice/bfs-pom.xml clean compile assembly:single -DskipTests
 

@@ -43,6 +43,9 @@ COPY ors.diff ors2.diff ors3.diff ors4.diff /ors-core/openrouteservice/
 
 WORKDIR /ors-core
 
+# set JAVA_HOME
+ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
+
 # Build Openrouteservice
 # Install tomcat
 # Add tomcat custom settings if provided
