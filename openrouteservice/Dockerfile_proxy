@@ -25,21 +25,27 @@ RUN apt-get -qq install -y curl wget gnupg patch unzip git && \
     apt-get -qq install -y nodejs && \
     mkdir /ors-web
 
-COPY patches/app.js.patch patches/ors-utils-service.js.patch patches/Gruntfile.js.patch patches/ors-map.js.patch patches/ors-request-service.js.patch /ors-web/
+#COPY patches/app.js.patch patches/ors-utils-service.js.patch patches/Gruntfile.js.patch patches/ors-map.js.patch patches/ors-request-service.js.patch /ors-web/
+COPY patches/ors-web-frontend.patch /ors-web/
 
 COPY run_grunt.sh /
 
-RUN cd /ors-web && wget --quiet -O /ors-web.zip $ORS_WEB_ZIP_URL_BASE/$ORS_WEB_BRANCH_TAG.zip && unzip -q -d /ors-web /ors-web.zip && mv /ors-web/openrouteservice-app-$ORS_WEB_BRANCH_TAG_IN_ZIP/* /ors-web/openrouteservice-app-$ORS_WEB_BRANCH_TAG_IN_ZIP/.b* /ors-web && \
-    cd /ors-web && npm install && \
-    node_modules/bower/bin/bower install --quiet --allow-root && \
-    cd /ors-web/bower_components/angularjs-slider && npm install --quiet && cd /ors-web && \
-    cd /ors-web && cp Gruntfile.default.js Gruntfile.js && \
-    patch app/js/app.js app.js.patch && \
-    patch Gruntfile.js Gruntfile.js.patch && \
-    patch app/components/ors-map/ors-map.js ors-map.js.patch && \
-    patch app/infrastructure/ors-request-service.js ors-request-service.js.patch && \
-    patch app/infrastructure/ors-utils-service.js ors-utils-service.js.patch && \
-    sed -i \
+RUN cd /ors-web && \
+    wget --quiet -O /ors-web.zip $ORS_WEB_ZIP_URL_BASE/$ORS_WEB_BRANCH_TAG.zip && \
+    unzip -q -d /ors-web /ors-web.zip && \
+    mv /ors-web/openrouteservice-app-$ORS_WEB_BRANCH_TAG_IN_ZIP/* /ors-web/openrouteservice-app-$ORS_WEB_BRANCH_TAG_IN_ZIP/.b* /ors-web
+
+RUN cd /ors-web && npm install
+
+RUN cd /ors-web && node_modules/bower/bin/bower install --quiet --allow-root
+
+RUN cd /ors-web/bower_components/angularjs-slider && npm install --quiet
+
+RUN cd /ors-web && patch -p 1 -i ors-web-frontend.patch
+
+RUN cd /ors-web && cp Gruntfile.default.js Gruntfile.js
+
+RUN cd /ors-web && sed -i \
       -e "s,XXX_TILE_URL_BKG,$TILE_URLBASE_BKG,g" \
       -e "s,XXX_TILE_URL_OSMDE,$TILE_URLBASE_OSMDE,g" \
       -e "s,XXX_TILE_URL_BASIC,$TILE_URLBASE_BASIC,g" \
@@ -47,8 +53,9 @@ RUN cd /ors-web && wget --quiet -O /ors-web.zip $ORS_WEB_ZIP_URL_BASE/$ORS_WEB_B
       -e "s,XXX_GEOCODE_URL_BASE,$GEOCODE_URL_BASE,g" \
       Gruntfile.js && \
     rm *.patch && \
-    cp app/weathercheck.default.txt app/weathercheck.txt && \
-    chmod 755 /run_grunt.sh && /run_grunt.sh && rm /run_grunt.sh
+    cp app/weathercheck.default.txt app/weathercheck.txt
+
+RUN cd /ors-web && chmod 755 /run_grunt.sh && /run_grunt.sh && rm /run_grunt.sh
 
 COPY httpd.conf /usr/local/apache2/conf/httpd.conf
 

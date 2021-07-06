@@ -1,0 +1,299 @@
+diff --git a/Gruntfile.default.js b/Gruntfile.default.js
+index 191ec7f..c3b1bfd 100644
+--- a/Gruntfile.default.js
++++ b/Gruntfile.default.js
+@@ -185,7 +185,8 @@ module.exports = function(grunt) {
+                                 "/node_modules",
+                                 serveStatic("./node_modules")
+                             ),
+-                            proxy("/ors",{ target: 'http://localhost:8082', changeOrigin: true, pathRewrite: {'^/ors/': '/' }}),
++                            proxy("/ors/geocode/",{ target: 'XXX_GEOCODE_URL_BASE', changeOrigin: true}),
++                            proxy("/ors",{ target: 'http://openrouteservice-app:8080', changeOrigin: true}),
+                             serveStatic("./app")
+                         ];
+                     }
+@@ -238,19 +239,25 @@ module.exports = function(grunt) {
+                 constants: {
+                     ENV: {
+                         name: "local",
+-                        geocode:
+-                            "http://localhost:3005/ors/geocode",
++                        geocode: "/ors/geocode",
+                         directions:
+-                            "http://localhost:3005/ors/v2/directions",
++                            "/ors/v2/directions",
+                         isochrones:
+-                            "http://localhost:3005/ors/v2/isochrones",
++                            "/ors/isochrones",
+                         matrix:
+-                            "http://localhost:3005/ors/matrix",
++                            "/ors/matrix",
+                         pois:
+-                            "https://api.openrouteservice.org/pois",
++                            "/ors/pois",
+                         shortenlink: "https://api-ssl.bitly.com/v3/shorten",
+                         mapsurfer:
+                             "https://api.openrouteservice.org/mapsurfer/{z}/{x}/{y}.png",
++			tileLayers: {
++                            bkgGrey: "XXX_TILE_URL_BKG/{z}/{x}/{y}.png",
++                            osmDE: "XXX_TILE_URL_OSMDE/{z}/{x}/{y}.png",
++                            osmBasicPastHill: "XXX_TILE_URL_BASIC/{z}/{x}/{y}.png",
++                            labelsOverlay: "XXX_TILE_URL_LABELS/{z}/{x}/{y}.png"
++                        },
++                        osmAndTerrainAttribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, terrain <a href="">ASTER</a> (a product of METI and NASA), <a href="https://www.earthenv.org/DEM">EarthEnv-DEM90</a> and <a href="https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333">Canadian Digital Elevation Model (contains information licensed under the Open Government Licence Canada)',
+                         landmarks: "https://landmarks-api.openrouteservice.org/",
+                         fuel: "https://api.openrouteservice.org/fuel"
+                     }
+@@ -263,16 +270,23 @@ module.exports = function(grunt) {
+                 constants: {
+                     ENV: {
+                         name: "production",
+-                        geocode: "https://api.openrouteservice.org/geocode",
++                        geocode: "/ors/geocode",
+                         directions:
+-                            "https://api.openrouteservice.org/v2/directions",
++                            "/ors/v2/directions",
+                         isochrones:
+-                            "https://api.openrouteservice.org/v2/isochrones",
+-                        matrix: "https://api.openrouteservice.org/matrix",
+-                        pois: "https://api.openrouteservice.org/pois",
++                            "/ors/isochrones",
++                        matrix: "/ors/matrix",
++                        pois: "/ors/pois",
+                         shortenlink: "https://api-ssl.bitly.com/v3/shorten",
+                         mapsurfer:
+                             "https://api.openrouteservice.org/mapsurfer/{z}/{x}/{y}.png",
++			tileLayers: {
++                            bkgGrey: "XXX_TILE_URL_BKG/{z}/{x}/{y}.png",
++                            osmDE: "XXX_TILE_URL_OSMDE/{z}/{x}/{y}.png",
++                            osmBasicPastHill: "XXX_TILE_URL_BASIC/{z}/{x}/{y}.png",
++                            labelsOverlay: "XXX_TILE_URL_LABELS/{z}/{x}/{y}.png"
++                        },
++                        osmAndTerrainAttribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, terrain <a href="">ASTER</a> (a product of METI and NASA), <a href="https://www.earthenv.org/DEM">EarthEnv-DEM90</a> and <a href="https://open.canada.ca/data/en/dataset/7f245e4d-76c2-4caa-951a-45d1d2051333">Canadian Digital Elevation Model (contains information licensed under the Open Government Licence Canada)',
+                         landmarks: "https://landmarks-api.openrouteservice.org/",
+                         fuel: "https://api.openrouteservice.org/fuel"
+                     }
+@@ -365,8 +379,7 @@ module.exports = function(grunt) {
+             "tags",
+             "clean:task_rm_build_unused",
+             "stripDebug",
+-            "cacheBust",
+-            "connect:build:keepalive"
++            "cacheBust"
+         ]
+     );
+     grunt.registerTask("dev", "Run local server for development purposes", [
+diff --git a/app/components/ors-map/ors-map.js b/app/components/ors-map/ors-map.js
+index 640edb6..2ba03f9 100755
+--- a/app/components/ors-map/ors-map.js
++++ b/app/components/ors-map/ors-map.js
+@@ -62,38 +62,29 @@ angular.module("orsApp").directive("orsMap", () => {
+         let ak = "?api_key=" + apiKey;
+ 
+         $scope.translateFilter = $filter("translate");
+-        const bkgtopplus = L.tileLayer.wms(
+-          orsNamespaces.layerBkgTopPlus.url,
+-          orsNamespaces.layerBkgTopPlus.options.normal
+-        );
+-        const bkgtopplusgrey = L.tileLayer.wms(
+-          orsNamespaces.layerBkgTopPlus.url,
+-          orsNamespaces.layerBkgTopPlus.options.grey
+-        );
+-        const openstreetmap = L.tileLayer(
+-          orsNamespaces.layerOSM.url,
+-          orsNamespaces.layerOSM.options
+-        );
+-        const opencyclemap = L.tileLayer(
+-          orsNamespaces.layerOSMCycle.url,
+-          orsNamespaces.layerOSMCycle.options
+-        );
+-        const transportdark = L.tileLayer(
+-          orsNamespaces.layerOSMDark.url,
+-          orsNamespaces.layerOSMDark.options
+-        );
+-        const outdoors = L.tileLayer(
+-          orsNamespaces.layerOutdoors.url,
+-          orsNamespaces.layerOutdoors.options
+-        );
+-        const worldImagery = L.tileLayer(
+-          orsNamespaces.layerWorldImagery.url,
+-          orsNamespaces.layerWorldImagery.options
+-        );
+-        const cycleOSM = L.tileLayer(
+-          orsNamespaces.layerCycleOsm.url,
+-          orsNamespaces.layerCycleOsm.options
+-        );
++        const bkgtopplusgrey = L.tileLayer(ENV.tileLayers.bkgGrey, {
++          layers: "web",
++          format: "image/png",
++          attribution:
++            '© <a href="http://www.bkg.bund.de">Bundesamt für Kartographie und Geodäsie</a> 2017, <a href="https://sgx.geodatenzentrum.de/web_public/Datenquellen_TopPlus_Open.pdf">Datenquellen</a>',
++          id: 0
++        });
++        const openstreetmap = L.tileLayer(orsNamespaces.layerOSM.url, {
++          attribution: orsNamespaces.layerOSM.attribution,
++          id: 1
++        });
++        const osmCartoDE = L.tileLayer(ENV.tileLayers.osmDE, {
++          attribution: orsNamespaces.layerOSM.attribution,
++          id: 2
++        });
++        const osmBasicPastelHillshade = L.tileLayer(ENV.tileLayers.osmBasicPastHill, {
++          attribution: ENV.osmAndTerrainAttribution,
++          id: 3
++        });
++        const osmLabelsOnly = L.tileLayer(ENV.tileLayers.labelsOnly, {
++          attribution: orsNamespaces.layerOSM.attribution,
++          id: 4
++        });
+         $scope.heightGraphData = [];
+         $scope.geofeatures = {
+           layerLocationMarker: L.featureGroup(),
+@@ -536,14 +527,11 @@ angular.module("orsApp").directive("orsMap", () => {
+           setSettings();
+         };
+         $scope.baseLayers = {
+-          "TopPlus-Web-Open": bkgtopplus,
+           "TopPlus-Web-Open Greyscale": bkgtopplusgrey,
+-          OpenStreetMap: openstreetmap,
+-          OpenCycleMap: opencyclemap,
+-          "Transport Dark": transportdark,
+-          Outdoors: outdoors,
+-          "World Imagery": worldImagery,
+-          CycleOSM: cycleOSM
++          "OSM Carto (OSMF)": openstreetmap,
++          "OSM Carto DE": osmCartoDE,
++          "OSM Basic Pastel Hillshade": osmBasicPastelHillshade,
++          "Labels only": osmLabelsOnly
+         };
+         $scope.mapModel.map.on("load", evt => {
+           // add mapstyle
+diff --git a/app/infrastructure/ors-request-service.js b/app/infrastructure/ors-request-service.js
+index 1d06ebd..d5b8eec 100755
+--- a/app/infrastructure/ors-request-service.js
++++ b/app/infrastructure/ors-request-service.js
+@@ -99,7 +99,7 @@ angular.module("orsApp.request-service", []).factory("orsRequestService", [
+      */
+     orsRequestService.geocode = (requestData, reverse = false) => {
+       var url = ENV.geocode;
+-      url += reverse ? "/reverse" : "/autocomplete";
++      url += reverse ? "/reverse" : "/api";
+       var canceller = $q.defer();
+       var cancel = function(reason) {
+         canceller.resolve(reason);
+diff --git a/app/infrastructure/ors-utils-service.js b/app/infrastructure/ors-utils-service.js
+index cc00ba4..dba8bb3 100755
+--- a/app/infrastructure/ors-utils-service.js
++++ b/app/infrastructure/ors-utils-service.js
+@@ -211,19 +211,19 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
+       let orsSettingsFactory = $injector.get("orsSettingsFactory");
+       if (!reverse) {
+         payload = {
+-          text: obj,
++          q: obj,
+           lang: language,
+-          size: limit,
+-          "focus.point.lat": orsSettingsFactory.getUserOptions().lat,
+-          "focus.point.lon": orsSettingsFactory.getUserOptions().lng
++          limit: limit,
++          "lat": orsSettingsFactory.getUserOptions().lat,
++          "lon": orsSettingsFactory.getUserOptions().lng
+         };
+       } else {
+         payload = {
+-          "point.lat": obj.split(", ")[1],
+-          "point.lon": obj.split(", ")[0],
++          "lat": obj.split(", ")[1],
++          "lon": obj.split(", ")[0],
+           // location: obj,
+           lang: language,
+-          size: 1
++          limit: 1
+         };
+       }
+       return payload;
+@@ -401,7 +401,7 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
+             : lists.isochroneOptionList.reverseFlow.start,
+         /*jshint +W014 */
+         profile: lists.profiles[settings.profile.type].request,
+-        attributes: ["area", "reachfactor", "total_pop"],
++        attributes: ["area", "reachfactor"],
+         options: orsUtilsService.generateOptions(settings)
+       };
+       // remove options if empty
+@@ -477,47 +477,33 @@ angular.module("orsApp.utils-service", []).factory("orsUtilsService", [
+           if (streetAddress.length > 0) {
+             feature.processed.primary = streetAddress.join(" ");
+           }
+-        } else if ("locality" in properties) {
+-          feature.processed.primary = properties.locality;
++        } else if ("city" in properties) {
++          feature.processed.primary = properties.city;
+         }
+         // secondary information
+         const secondary = [];
+-        if ("postalcode" in properties) {
++        if ("postcode" in properties) {
+           secondary.push(properties.postalcode);
+         }
+-        if ("neighbourhood" in properties) {
+-          secondary.push(properties.neighbourhood);
+-        }
+-        if ("borough" in properties) {
+-          secondary.push(properties.borough);
+-        }
+         if (
+-          "locality" in properties &&
+-          properties.locality !== properties.name
++          "city" in properties &&
++          properties.city !== properties.name
+         ) {
+-          secondary.push(properties.locality);
++          secondary.push(properties.city);
+         }
+         if (
+-          "municipality" in properties &&
+-          properties.municipality !== properties.name &&
+-          properties.municipality !== properties.locality
++          "state" in properties &&
++          properties.state !== properties.name &&
++          properties.state !== properties.locality
+         ) {
+-          secondary.push(properties.municipality);
++          secondary.push(properties.state);
+         }
+-        if (
+-          "county" in properties &&
+-          properties.county !== properties.name &&
+-          properties.county !== properties.locality
+-        ) {
+-          secondary.push(properties.county);
+-        }
+-        if ("region" in properties && properties.region !== properties.name) {
+-          secondary.push(properties.region);
+-        }
+-        if ("country" in properties && properties.country !== properties.name) {
++        /*if ("country" in properties && properties.country !== properties.name &&
++          properties.country !== properties.state) {
+           secondary.push(properties.country);
+-        }
+-        if (secondary.length <= 1 && properties.country !== properties.name)
++        }*/
++        if (secondary.length <= 1 && properties.country !== properties.name &&
++	    properties.country !== properties.state)
+           secondary.push(properties.country);
+         feature.processed.secondary = secondary.join(", ");
+         feature.processed.place_type = properties.layer;
+diff --git a/app/js/app.js b/app/js/app.js
+index 3e42fb6..b8ad72e 100755
+--- a/app/js/app.js
++++ b/app/js/app.js
+@@ -93,7 +93,7 @@
+                 : orsApikeyFactory.getApiKey();
+             let ak = "?api_key=" + apiKey;
+             if (
+-              config.url === ENV.geocode + "/autocomplete" ||
++              config.url === ENV.geocode + "/api" ||
+               config.url === ENV.geocode + "/reverse" ||
+               config.url.startsWith(ENV.directions) ||
+               config.url.startsWith(ENV.isochrones) ||

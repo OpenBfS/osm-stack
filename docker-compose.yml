@@ -238,9 +238,9 @@ services:
       context: openrouteservice
       dockerfile: 'Dockerfile_proxy'
       args:
-        ORS_WEB_BRANCH_TAG: 'v0.5.0'
+        ORS_WEB_BRANCH_TAG: 'v0.7.2'
         # The version/branch string in the top level directory of the ZIP archive can differ, e.g. have not "v" at the beginning. Download the archive on your computer first and check what's needed.
-        ORS_WEB_BRANCH_TAG_IN_ZIP: '0.5.0'
+        ORS_WEB_BRANCH_TAG_IN_ZIP: '0.7.2'
         TILE_URLBASE_BKG: '/tiles/topplusopen'
         TILE_URLBASE_OSMDE: '/tiles/osmde'
         TILE_URLBASE_BASIC: '/tiles/basicpastel'
