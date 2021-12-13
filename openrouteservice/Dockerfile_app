@@ -21,7 +21,7 @@ ARG ORS_BRANCH_TAG_IN_ZIP
 ARG CATALINA_OPTS
 
 # Install required deps
-RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client
+RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client zip
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -49,7 +49,17 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 # Build Openrouteservice
 # Install tomcat
 # Add tomcat custom settings if provided
-RUN mvn -q -f ./openrouteservice/pom.xml package -DskipTests && \
+RUN mvn -q -f ./openrouteservice/pom.xml package -DskipTests
+
+# Extract log4j JAR files in order to remove JndiLookup class
+# https://logging.apache.org/log4j/2.x/security.html
+RUN mkdir /tmp/ors_war && \
+    unzip -d /tmp/ors_war/ openrouteservice/target/ors.war WEB-INF/lib/log4j-core-2.13.3.jar && \
+    zip -d /tmp/ors_war/WEB-INF/lib/log4j-core-2.13.3.jar org/apache/logging/log4j/core/lookup/JndiLookup.class && \
+    cd /tmp/ors_war/ && \
+    zip /ors-core/openrouteservice/target/ors.war WEB-INF/lib/log4j-core-2.13.3.jar && \
+    cd /ors-core && \
+    rm -rf /tmp/ors_war && \
     mkdir /usr/local/tomcat /ors-conf && wget -q https://archive.apache.org/dist/tomcat/tomcat-8/v8.5.39/bin/apache-tomcat-8.5.39.tar.gz -O /tmp/tomcat.tar.gz && \
     cd /tmp && tar xfz tomcat.tar.gz && cp -R /tmp/apache-tomcat-8.5.39/* /usr/local/tomcat/ && \
     mv /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war && \

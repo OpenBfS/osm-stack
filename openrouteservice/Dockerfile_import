@@ -11,7 +11,7 @@ ARG ORS_BRANCH_TAG_IN_ZIP=6.0.0
 
 # Install required deps
 RUN apt-get update -qq && apt-get install -qq -y bash locales wget maven osmium-tool wget python3-pip jq \
-    build-essential cmake libboost-dev libexpat1-dev zlib1g-dev libbz2-dev \
+    build-essential cmake libboost-dev libexpat1-dev zlib1g-dev libbz2-dev zip \
     && pip3 install osmium
 
 # Set the locale
@@ -38,7 +38,8 @@ WORKDIR /ors-core
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 
 # Build Openrouteservice
-RUN mvn -q -f ./openrouteservice/bfs-pom.xml clean compile assembly:single -DskipTests
+RUN mvn -q -f ./openrouteservice/bfs-pom.xml clean compile assembly:single -DskipTests && \
+    zip -d openrouteservice/target/ors-jar-with-dependencies.jar org/apache/logging/log4j/core/lookup/JndiLookup.class
 
 COPY germany-100km.poly /ors-core/
 COPY update.sh /ors-core/update.sh
