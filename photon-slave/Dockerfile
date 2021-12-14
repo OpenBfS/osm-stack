@@ -5,7 +5,7 @@ ARG PHOTON_ZIP_URL_BASE
 ARG PHOTON_BRANCH_TAG
 
 RUN apt-get update -y && \
-    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y rsync openjdk-11-jdk maven openssh-client wget python3 unzip && \
+    DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y rsync openjdk-11-jdk maven openssh-client wget python3 unzip zip && \
     echo "A SSH public key will be copied into a Docker volume mounted at /ssh-authorized-keys in the next step. It will fail if you have not created this file yet! Please see the subsection \"SSH-Schlüssel\" in the chapter \"Geocoding\" in the setup guide for further details."
 
 COPY id_root_ed25519 /ssh-private-keys/id_root_ed25519
@@ -19,7 +19,8 @@ RUN mkdir -p /photon/photon-$PHOTON_BRANCH_TAG
 
 RUN wget --quiet -O /photon.zip $PHOTON_ZIP_URL_BASE/$PHOTON_BRANCH_TAG.zip && unzip -q -d /photon /photon.zip && mv /photon/photon-$PHOTON_BRANCH_TAG/src/ /photon/photon-$PHOTON_BRANCH_TAG/es/ /photon/photon-$PHOTON_BRANCH_TAG/website/ /photon/photon-$PHOTON_BRANCH_TAG/pom.xml /photon
 
-RUN mvn -q -f /photon/pom.xml compile package -DskipTests=true
+RUN mvn -q -f /photon/pom.xml compile package -DskipTests=true && \
+    zip -d /photon/target/photon-$PHOTON_VERSION.jar org/apache/logging/log4j/core/lookup/JndiLookup.class
 
 COPY run_and_update.py /
 

@@ -3,8 +3,9 @@ FROM ubuntu:20.04
 ARG NOMINATIM_TARBALL_URL
 ARG PHOTON_ZIP_URL_BASE
 ARG PHOTON_BRANCH_TAG
+ARG PHOTON_JAR_NAME
 
-RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y wget build-essential cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev zlib1g-dev libxml2-dev libbz2-dev libpq-dev libproj-dev php php-pgsql php-intl postgresql-server-dev-12 python3-psycopg2 python3-pip openjdk-11-jdk maven postgresql-client-12 unzip wait-for-it osmium-tool
+RUN apt-get update -y && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends -y wget build-essential cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev zlib1g-dev libxml2-dev libbz2-dev libpq-dev libproj-dev php php-pgsql php-intl postgresql-server-dev-12 python3-psycopg2 python3-pip openjdk-11-jdk maven postgresql-client-12 unzip wait-for-it osmium-tool zip
 
 RUN pip3 install osmium
 
@@ -16,7 +17,8 @@ RUN cd /nominatim/data && wget --quiet -O country_osm_grid.sql.gz https://www.no
 
 RUN wget --quiet -O /photon.zip $PHOTON_ZIP_URL_BASE/$PHOTON_BRANCH_TAG.zip && unzip -q -d /photon /photon.zip && mv /photon/photon-$PHOTON_BRANCH_TAG/src/ /photon/photon-$PHOTON_BRANCH_TAG/es/ /photon/photon-$PHOTON_BRANCH_TAG/website/ /photon/photon-$PHOTON_BRANCH_TAG/pom.xml /photon
 
-RUN mvn -q -f /photon/pom.xml compile package -DskipTests=true
+RUN mvn -q -f /photon/pom.xml compile package -DskipTests=true && \
+    zip -d $PHOTON_JAR_NAME org/apache/logging/log4j/core/lookup/JndiLookup.class
 
 COPY import-address-postcode-polygons-preserve.style /nominatim/settings/
 
