@@ -18,7 +18,7 @@ RUN cd /nominatim/data && wget --quiet -O country_osm_grid.sql.gz https://www.no
 RUN wget --quiet -O /photon.zip $PHOTON_ZIP_URL_BASE/$PHOTON_BRANCH_TAG.zip && unzip -q -d /photon /photon.zip && mv /photon/photon-$PHOTON_BRANCH_TAG/src/ /photon/photon-$PHOTON_BRANCH_TAG/es/ /photon/photon-$PHOTON_BRANCH_TAG/website/ /photon/photon-$PHOTON_BRANCH_TAG/pom.xml /photon
 
 RUN mvn -q -f /photon/pom.xml compile package -DskipTests=true && \
-    zip -d $PHOTON_JAR_NAME org/apache/logging/log4j/core/lookup/JndiLookup.class || true
+    zip -d $PHOTON_JAR_NAME org/apache/logging/log4j/core/lookup/JndiLookup.class
 
 COPY import-address-postcode-polygons-preserve.style /nominatim/settings/
 

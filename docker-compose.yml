@@ -111,6 +111,7 @@ services:
         NOMINATIM_TARBALL_URL: 'https://nominatim.org/release/Nominatim-3.6.0.tar.bz2'
         PHOTON_ZIP_URL_BASE: 'https://github.com/komoot/photon/archive'
         PHOTON_BRANCH_TAG: '0.3.4'
+        PHOTON_JAR_NAME: '/photon/target/photon-0.3.4.jar'
     image: ${REGISTRY_HOST}bfs/nominatim-photon-master:3.6.0-0.3.4
     restart: always
     environment:
