@@ -11,7 +11,7 @@ ARG ORS_BRANCH_TAG_IN_ZIP=6.0.0
 
 # Install required deps
 RUN apt-get update -qq && apt-get install -qq -y bash locales wget maven osmium-tool wget python3-pip jq \
-    build-essential cmake libboost-dev libexpat1-dev zlib1g-dev libbz2-dev zip \
+    build-essential cmake libboost-dev libexpat1-dev zlib1g-dev libbz2-dev zip python3 \
     && pip3 install osmium
 
 # Set the locale
