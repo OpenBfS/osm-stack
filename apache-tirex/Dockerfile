@@ -104,6 +104,9 @@ COPY scripts/* /usr/local/bin/
 COPY thirdparty/checkmk-plugins/apache_status /usr/lib/check_mk_agent/plugins/
 COPY thirdparty/checkmk-plugins/apache_status.cfg /etc/check_mk/
 
+# fix var/log permissions for logrotate
+RUN chmod 755 /var/log
+
 EXPOSE 80
 EXPOSE 6556
 
