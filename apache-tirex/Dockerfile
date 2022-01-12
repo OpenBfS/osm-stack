@@ -24,6 +24,7 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install --no-instal
     postgresql-client \
     libnet-https-nb-perl \
     libhttp-async-perl \
+    logrotate \
     patch \
     gettext \
     wait-for-it \
