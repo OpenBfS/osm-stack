@@ -193,7 +193,7 @@ services:
       - openrouteservice_osm_file:/data/osm-data
       - openrouteservice_graphs:/data/openrouteservice
       - openrouteservice_elevation_cache:/data/elevation_cache
-      - openrouteservice_generation_logs:/var/logs/ors
+      - openrouteservice_generation_logs:/var/log/ors
   openrouteservice-app:
     build:
       context: 'openrouteservice'
