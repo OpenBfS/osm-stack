@@ -21,7 +21,7 @@ ARG ORS_BRANCH_TAG_IN_ZIP
 ARG CATALINA_OPTS
 
 # Install required deps
-RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client zip
+RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client zip jq
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -73,6 +73,10 @@ RUN chmod 755 /run_tomcat_update_and_xinetd.sh && \
 # Copy SSH private key
 COPY id_root_ed25519 /ssh-private-keys/id_root_ed25519
 RUN chmod 0600 /ssh-private-keys/id_root_ed25519
+
+# Create backup of original configuration
+RUN cp /ors-core/openrouteservice/src/main/resources/app.config /ors-core/openrouteservice/src/main/resources/app.config.orig && \
+    cp /ors-core/openrouteservice/src/main/resources/logs/PRODUCTION_LOGGING.json /ors-core/openrouteservice/src/main/resources/logs/PRODUCTION_LOGGING.json.orig
  
 # Create /data
 RUN mkdir -p /data/osm-data && mkdir -p /data/openrouteservice

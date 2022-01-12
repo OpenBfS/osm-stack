@@ -41,6 +41,10 @@ ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 RUN mvn -q -f ./openrouteservice/bfs-pom.xml clean compile assembly:single -DskipTests && \
     zip -d openrouteservice/target/ors-jar-with-dependencies.jar org/apache/logging/log4j/core/lookup/JndiLookup.class
 
+# Create backup of original configuration
+RUN cp /ors-core/openrouteservice/src/main/resources/app.config /ors-core/openrouteservice/src/main/resources/app.config.orig && \
+    cp /ors-core/openrouteservice/src/main/resources/logs/PRODUCTION_LOGGING.json /ors-core/openrouteservice/src/main/resources/logs/PRODUCTION_LOGGING.json.orig
+
 COPY germany-100km.poly /ors-core/
 COPY update.sh /ors-core/update.sh
 

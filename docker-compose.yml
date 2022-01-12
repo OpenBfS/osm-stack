@@ -189,6 +189,14 @@ services:
       - POLY_FILE=${ORS_IMPORT_POLY_FILE}
       - UPDATE_INTERVAL=86400
       - UPDATE_RECHECK_INTERVAL=900
+      # Edit bfs.config during startup of the container. Value is feeded into jq.
+      # Do not add extra quotes.
+      # Example: In order to set ors.services.matrix.maximum_routes=200 and ors.services.isochrones.enabled=false, use
+      # ".ors.services.matrix.maximum_routes=200 | .ors.services.isochrones.enabled=false"
+      # Use "." (without quotes) if you do not want to change anything.
+      - ORS_CONFIG_CHANGES=${ORS_CONFIG_CHANGES:-.}
+      # Edit logging settings (PRODUCTION_LOGGING.json file). Value is feeded into jq.
+      - ORS_LOGGING_CHANGES=${ORS_LOGGING_CHANGES:-.}
     volumes:
       - openrouteservice_osm_file:/data/osm-data
       - openrouteservice_graphs:/data/openrouteservice
@@ -210,6 +218,14 @@ services:
     environment:
       - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
       - MASTER_PORT=${MASTER_PORT:-2222}
+      # Edit bfs.config during startup of the container. Value is feeded into jq.
+      # Do not add extra quotes.
+      # Example: In order to set ors.services.matrix.maximum_routes=200 and ors.services.isochrones.enabled=false, use
+      # ".ors.services.matrix.maximum_routes=200 | .ors.services.isochrones.enabled=false"
+      # Use "." (without quotes) if you do not want to change anything.
+      - ORS_CONFIG_CHANGES=${ORS_CONFIG_CHANGES:-.ors.services.matrix.maximum_routes=200 | .ors.services.isochrones.enabled=true}
+      # Edit logging settings (PRODUCTION_LOGGING.json file). Value is feeded into jq.
+      - ORS_LOGGING_CHANGES=${ORS_LOGGING_CHANGES:-.}
     volumes:
       - openrouteservice_osm_file:/data/osm-data
       - openrouteservice_graphs_slave:/data/openrouteservice
