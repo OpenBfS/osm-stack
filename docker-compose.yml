@@ -230,8 +230,6 @@ services:
       - openrouteservice_osm_file:/data/osm-data
       - openrouteservice_graphs_slave:/data/openrouteservice
       - openrouteservice_elevation_cache:/data/elevation_cache
-      - openrouteservice_tomcat_logs:/urs/local/tomcat/logs
-      - openrouteservice_ors_logs:/urs/local/ors/logs
       - ssh-private-keys:/ssh-private-keys
   vroom:
     build:

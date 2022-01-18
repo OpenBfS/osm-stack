@@ -21,7 +21,7 @@ ARG ORS_BRANCH_TAG_IN_ZIP
 ARG CATALINA_OPTS
 
 # Install required deps
-RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client zip jq
+RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client zip jq logrotate
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
@@ -65,9 +65,12 @@ RUN mkdir /tmp/ors_war && \
     mv /ors-core/openrouteservice/target/*.war /usr/local/tomcat/webapps/ors.war && \
     touch /usr/local/tomcat/bin/setenv.sh && echo "CATALINA_OPTS=\"$CATALINA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh && echo "JAVA_OPTS=\"$JAVA_OPTS\"" >> /usr/local/tomcat/bin/setenv.sh
 
-COPY run_and_update.py run_tomcat_update_and_xinetd.sh /
+COPY tomcat.logrotate /etc/logrotate.d/tomcat
+
+COPY start_tomcat.sh run_and_update.py run_tomcat_update_and_xinetd.sh /
 
 RUN chmod 755 /run_tomcat_update_and_xinetd.sh && \
+    chmod 755 /start_tomcat.sh && \
     echo "A SSH key will be copied into a Docker volume mounted at /ssh-private-keys in the next step. It will fail if you have not created this file yet! Please see the subsection \"SSH-Schlüssel\" in the chapter \"Routing\" in the setup guide for further details."
 
 # Copy SSH private key

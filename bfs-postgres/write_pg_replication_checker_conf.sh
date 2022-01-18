@@ -32,9 +32,9 @@ dbname = osm
 
 [thresholds]
 # 30 MB
-max_diff_warn = 31457280
+max_diff_warn = $POSTGRES_DIFF_WARN
 # 120 MB
-max_diff_critical = 125829120
+max_diff_critical = $POSTGRES_DIFF_CRIT
 EOF
 
 echo "Updated ~/.pgpass and /etc/pg_replication_checker.conf"

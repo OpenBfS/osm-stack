@@ -1,0 +1,26 @@
+/usr/local/tomcat/logs/*.log {
+    rotate 7
+    copytruncate
+    missingok
+    daily
+    delaycompress
+    endscript
+}
+
+/usr/local/tomcat/logs/*.txt {
+    rotate 7
+    copytruncate
+    missingok
+    daily
+    delaycompress
+    endscript
+}
+
+/var/log/ors/logs/*.log {
+    rotate 7
+    copytruncate
+    missingok
+    daily
+    delaycompress
+    endscript
+}
