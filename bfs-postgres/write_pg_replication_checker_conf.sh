@@ -16,6 +16,8 @@ EOF
 fi
 
 PGM=${POSTGRES_MASTER_HOST:-postgres-master}
+POSTGRES_DIFF_WARN=${POSTGRES_DIFF_WARN:-31457280}
+POSTGRES_DIFF_CRIT=${POSTGRES_DIFF_CRIT:-125829129}
 
 cat <<EOF > /etc/pg_replication_checker.conf
 [general]
