@@ -18,7 +18,8 @@ edit_conf() {
 edit_conf wal_level ${POSTGRES_WAL_LEVEL:-logical}
 edit_conf wal_compression ${POSTGRES_WAL_COMPRESSION:-on}
 edit_conf wal_recycle ${POSTGRES_WAL_RECYCLE:-off}
-edit_conf wal_sender_timeout ${POSTGRES_WAL_SENDER_TIMEOUT:-0}
+# Set wal_sender_timeout to 7 days (should be longer than any network outage)
+edit_conf wal_sender_timeout ${POSTGRES_WAL_SENDER_TIMEOUT:-604800}
 edit_conf shared_buffers ${POSTGRES_SHARED_BUFFERS:-16GB}
 edit_conf work_mem ${POSTGRES_WORK_MEM:-128MB}
 edit_conf maintenance_work_mem ${POSTGRES_MAINTENANCE_WORK_MEM:-256MB}
