@@ -16,15 +16,9 @@ RUN chmod a+x /write_pg_replication_checker_conf.sh
 COPY thirdparty/postgresql-13-osml10n_2.5.8_amd64.deb /tmp/postgresql-13-osml10n_2.5.8_amd64.deb
 RUN dpkg -i /tmp/postgresql-13-osml10n_2.5.8_amd64.deb || true && apt-get install -f -y && rm /tmp/postgresql-13-osml10n_2.5.8_amd64.deb
 
-RUN sed -i 's/#wal_level.*/wal_level = logical/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#max_wal_size.*/max_wal_size = 2GB/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#wal_compression = off.*/wal_compression = on/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#wal_recycle = on.*/wal_recycle = off/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#wal_sender_timeout.*/wal_sender_timeout = 0/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#shared_buffers.*/shared_buffers = 16GB/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#work_mem.*/work_mem = 128MB/g' /usr/share/postgresql/postgresql.conf.sample
-RUN sed -i 's/#mainentenance_work_mem.*/mainentenance_work_mem = 256MB/g' /usr/share/postgresql/postgresql.conf.sample
-
+COPY update_postgresql_conf.sh /
+RUN chmod a+x /update_postgresql_conf.sh && \
+    /update_postgresql_conf.sh /usr/share/postgresql/postgresql.conf.sample
 
 ##configure log_rotate
 #RUN sed -i "s/#log_destination.*/log_destination = 'stderr'/g" /usr/share/postgresql/postgresql.conf.sample
