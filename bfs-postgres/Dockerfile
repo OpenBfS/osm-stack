@@ -18,7 +18,7 @@ RUN dpkg -i /tmp/postgresql-13-osml10n_2.5.8_amd64.deb || true && apt-get instal
 
 COPY update_postgresql_conf.sh /
 RUN chmod a+x /update_postgresql_conf.sh && \
-    /update_postgresql_conf.sh /usr/share/postgresql/postgresql.conf.sample
+    POSTGRES_SHARED_BUFFERS=1GB /update_postgresql_conf.sh /usr/share/postgresql/postgresql.conf.sample
 
 ##configure log_rotate
 #RUN sed -i "s/#log_destination.*/log_destination = 'stderr'/g" /usr/share/postgresql/postgresql.conf.sample
