@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+# Add or update symlink from /vroom-express/config.yml to the requested configuration file based
+# on the value of the environment variable VROOM_EXPRESS_CONFIG
+
+if [ ! -v VROOM_EXPRESS_CONFIG ]; then
+    echo "ERROR: Environment variable VROOM_EXPRESS_CONFIG is not set."
+    exit
+fi
+
+set -euo pipefail
+
+SYMLINK=/vroom-express/config.yml
+
+if [ -f $SYMLINK ]; then
+    rm $SYMLINK
+fi
+
+if [ ! -f /etc/vroom-express/$VROOM_EXPRESS_CONFIG ]; then
+    echo "ERROR: /etc/vroom-express/$VROOM_EXPRESS_CONFIG does not exist."
+    exit 1
+fi
+
+ln -sf /etc/vroom-express/$VROOM_EXPRESS_CONFIG $SYMLINK

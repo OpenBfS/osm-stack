@@ -243,11 +243,36 @@ services:
         VROOM_EXPRESS_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom-express/archive'
         VROOM_EXPRESS_BRANCH_TAG: 'v0.7.0'
         VROOM_EXPRESS_BRANCH_TAG_IN_ZIP: '0.7.0'
-        VROOM_EXPRESS_CONFIG: 'vroom-express-config.yml'
+        VROOM_SCRIPTS_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom-scripts/archive'
+        VROOM_SCRIPTS_BRANCH_TAG: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
+        VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
     image: ${REGISTRY_HOST}bfs/vroom:v1.7.0
     restart: always
+    environment:
+      - VROOM_EXPRESS_CONFIG=vroom-express-config.yml
     volumes:
       - vroom_tmp:/var/lib/vroom-express/tmp
+    depends_on:
+      - openrouteservice-app
+  vroom-asap:
+    build:
+      context: 'vroom'
+      args:
+        VROOM_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom/archive'
+        VROOM_BRANCH_TAG: 'experiment/avoid-areas'
+        VROOM_BRANCH_TAG_IN_ZIP: 'experiment-avoid-areas'
+        VROOM_EXPRESS_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom-express/archive'
+        VROOM_EXPRESS_BRANCH_TAG: 'v0.7.0'
+        VROOM_EXPRESS_BRANCH_TAG_IN_ZIP: '0.7.0'
+        VROOM_SCRIPTS_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom-scripts/archive'
+        VROOM_SCRIPTS_BRANCH_TAG: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
+        VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
+    image: ${REGISTRY_HOST}bfs/vroom:v1.7.0
+    restart: always
+    environment:
+      - VROOM_EXPRESS_CONFIG=vroom-use-asap.yml
+    volumes:
+      - vroom_tmp_asap:/var/lib/vroom-express/tmp
     depends_on:
       - openrouteservice-app
   openrouteservice-proxy:
@@ -344,6 +369,7 @@ volumes:
   openrouteservice_ors_logs:
   openrouteservice_webapp:
   vroom_tmp:
+  vroom_tmp_asap:
   geoserver-config:
   postgres-master-dataset:
   postgres-follower-dataset:

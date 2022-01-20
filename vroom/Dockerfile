@@ -6,7 +6,9 @@ ARG VROOM_BRANCH_TAG_IN_ZIP
 ARG VROOM_EXPRESS_ZIP_URL_BASE=https://github.com/VROOM-Project/vroom-express/archive
 ARG VROOM_EXPRESS_BRANCH_TAG
 ARG VROOM_EXPRESS_BRANCH_TAG_IN_ZIP
-ARG VROOM_EXPRESS_CONFIG
+ARG VROOM_SCRIPTS_ZIP_URL_BASE=https://github.com/VROOM-Project/vroom-scripts/archive
+ARG VROOM_SCRIPTS_BRANCH_TAG
+ARG VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP
 
 ARG DEBIAN_FRONTEND=noninteractive
 
@@ -34,8 +36,14 @@ RUN patch /vroom-express/src/index.js /log-to-stdout.patch && \
     rm /log-to-stdout.patch && \
     rm /vroom-express.zip
 
-# Overwrite VROOM-Express configuration
-COPY $VROOM_EXPRESS_CONFIG /vroom-express/config.yml
+# Add VROOM-Express configurations
+RUN mkdir /etc/vroom-express/
+
+COPY vroom-use-asap.yml vroom-express-config.yml /etc/vroom-express/
+
+COPY set-vroom-express-config /usr/local/bin/
+
+RUN chmod a+x /usr/local/bin/set-vroom-express-config
 
 # Run npm install
 RUN cd /vroom-express && \
@@ -50,6 +58,18 @@ RUN mkdir /vroom && \
     rm /vroom.zip && \
     cd vroom && \
     make -C /vroom/src
+
+# Install VROOM-scripts
+# VROOM-Express allows to specify the directory where the "vroom" binary is located but it does
+# not allow to specify its filename. Therefore, we create a symlink "vroom" pointing to "asap.py".
+RUN mkdir /vroom-scripts && \
+    wget --quiet -O /vroom-scripts.zip $VROOM_SCRIPTS_ZIP_URL_BASE/$VROOM_SCRIPTS_BRANCH_TAG.zip && \
+    unzip -q -d /vroom-scripts /vroom-scripts.zip && \
+    mv /vroom-scripts/vroom-scripts-$VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP/* /vroom-scripts && \
+    rm /vroom-scripts.zip && \
+    cd vroom-scripts && \
+    mkdir /vroom-scripts/bin && \
+    ln -s /vroom-scripts/asap.py /vroom-scripts/bin/vroom
 
 # Prepare directories
 RUN mkdir -p /var/lib/vroom-express/tmp
