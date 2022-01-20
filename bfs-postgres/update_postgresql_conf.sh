@@ -23,5 +23,3 @@ edit_conf wal_sender_timeout ${POSTGRES_WAL_SENDER_TIMEOUT:-604800}
 edit_conf shared_buffers ${POSTGRES_SHARED_BUFFERS:-16GB}
 edit_conf work_mem ${POSTGRES_WORK_MEM:-128MB}
 edit_conf maintenance_work_mem ${POSTGRES_MAINTENANCE_WORK_MEM:-256MB}
-
-cat $CONF_FILE
