@@ -1,5 +1,10 @@
 #!/bin/bash
 
+if [ ! -v OSM2PGSQL_CACHE ]; then
+	echo "ERROR: OSM2PGSQL_CACHE is not set."
+	exit 1
+fi
+
 set -e
 
 LOOP_DELAY=600

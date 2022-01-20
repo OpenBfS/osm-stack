@@ -80,7 +80,7 @@ services:
       - PLANET_SOURCE=${OSM2PGSQL_PLANET_SOURCE}
       - PLANET_REPL_URL=${OSM2PGSQL_PLANET_REPL_URL}
       - OSM2PGSQL_CACHE=${OSM2PGSQL_CACHE}
-      - FLAT_NODES=1
+      - FLAT_NODES=${OSM2PGSQL_FLAT_NODES:-1}
     volumes:
       - osmpbf:/osmpbf
       - osm2pgsql_flatnodes:/flatnodes
