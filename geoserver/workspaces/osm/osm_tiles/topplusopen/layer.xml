@@ -1,0 +1,16 @@
+<layer>
+  <name>topplusopen</name>
+  <id>LayerInfoImpl--36c067b2:17e7d3aef9b:-7ff7</id>
+  <type>WMTS</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--570ae188:124761b8d78:-7fe2</id>
+  </defaultStyle>
+  <resource class="wmtsLayer">
+    <id>WMTSLayerInfoImpl--36c067b2:17e7d3aef9b:-7ff8</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-01-21 15:35:08.80 UTC</dateCreated>
+</layer>

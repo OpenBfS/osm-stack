@@ -1,0 +1,16 @@
+<layer>
+  <name>bfs-labels-only</name>
+  <id>LayerInfoImpl--36c067b2:17e7d3aef9b:-7ffb</id>
+  <type>WMTS</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--570ae188:124761b8d78:-7fe2</id>
+  </defaultStyle>
+  <resource class="wmtsLayer">
+    <id>WMTSLayerInfoImpl--36c067b2:17e7d3aef9b:-7ffc</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-01-21 15:34:22.405 UTC</dateCreated>
+</layer>

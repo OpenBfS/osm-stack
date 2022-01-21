@@ -1,0 +1,20 @@
+<wmtsStore>
+  <id>WMTSStoreInfoImpl--36c067b2:17e7d3aef9b:-7fff</id>
+  <name>osm_tiles</name>
+  <description>OSM raster tiles</description>
+  <type>WMTS</type>
+  <enabled>true</enabled>
+  <workspace>
+    <id>WorkspaceInfoImpl--57c549f2:1729f52bba3:-7fff</id>
+  </workspace>
+  <metadata>
+    <entry key="useConnectionPooling">true</entry>
+  </metadata>
+  <__default>false</__default>
+  <dateCreated>2022-01-21 15:29:19.676 UTC</dateCreated>
+  <dateModified>2022-01-21 15:33:31.742 UTC</dateModified>
+  <capabilitiesURL>http://tile-web/wmts-capabilities.xml</capabilitiesURL>
+  <maxConnections>6</maxConnections>
+  <readTimeout>60</readTimeout>
+  <connectTimeout>30</connectTimeout>
+</wmtsStore>

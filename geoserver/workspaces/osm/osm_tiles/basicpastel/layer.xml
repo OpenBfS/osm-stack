@@ -1,0 +1,16 @@
+<layer>
+  <name>basicpastel</name>
+  <id>LayerInfoImpl--36c067b2:17e7d3aef9b:-7ffd</id>
+  <type>WMTS</type>
+  <defaultStyle>
+    <id>StyleInfoImpl--570ae188:124761b8d78:-7fe2</id>
+  </defaultStyle>
+  <resource class="wmtsLayer">
+    <id>WMTSLayerInfoImpl--36c067b2:17e7d3aef9b:-7ffe</id>
+  </resource>
+  <attribution>
+    <logoWidth>0</logoWidth>
+    <logoHeight>0</logoHeight>
+  </attribution>
+  <dateCreated>2022-01-21 15:32:09.763 UTC</dateCreated>
+</layer>
