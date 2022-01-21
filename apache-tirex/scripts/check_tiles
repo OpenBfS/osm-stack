@@ -1,0 +1,73 @@
+#! /usr/bin/env bash
+#
+# Check validity of all tiles
+
+set -euo pipefail
+
+TILEDIR=/var/lib/tirex/tiles/
+
+print_help() {
+    echo "Report broken metatiles."
+    echo ""
+    echo "Usage: $0 [OPTIONS]"
+    echo ""
+    echo "Options:"
+    echo "  -m=ARG, --map=ARG          Limit search to specified map style (/var/lib/tirex/tiles/ARG)."
+    echo "  -z=ZOOM, --zoom=ARG        Limit search to specified zoom level (0..19). This option can"
+    echo "                             be combined with --map."
+    echo "  -h, --help                 Print help."
+    echo ""
+    echo "If a metatile is reported as broken, delete the file."
+    echo "You can use testmeta.pl directly, if you want to get detailes information what is wrong with"
+    echo "the metatile."
+    exit 1
+}
+
+
+OPTS=`getopt -o m:z:h --long map:zoom:help -n 'parse-options' -- "$@"`
+
+if [ $? != 0 ] ; then
+    echo "Failed parsing options." >&2
+    print_help
+fi
+
+ZOOM=""
+MAP=""
+
+eval set -- "$OPTS"
+
+while true; do
+    case "$1" in
+        -z | --zoom ) ZOOM=$2; shift; shift ;;
+        -m | --map ) MAP=$2; shift; shift ;;
+        -h | --help )    print_help; exit ;;
+        -- ) shift; break ;;
+        * ) break ;;
+    esac
+done
+
+if [ "$ZOOM" != "" ] ; then
+    if [ "$ZOOM" -lt 0 ] || [ "$ZOOM" -gt 19 ]; then
+        echo "ERROR: Invalid zoom level provided. Valid: 0..19"
+        exit 1
+    fi
+fi
+
+cd "$TILEDIR"
+for DIR in `find . -mindepth 1 -maxdepth 1 -type d | sed -e 's,^\./,,g'`; do
+    if [ "$MAP" != "" ] && [ "$MAP" != "$DIR" ]; then
+        continue
+    fi
+    for Z in `seq 0 19`; do
+        DIR_TO_SEARCH="$DIR/$Z"
+        if [ ! -d "$DIR_TO_SEARCH" ]; then
+            continue
+        fi
+        if [ "$ZOOM" != "" ] && [ "$Z" -ne "$ZOOM" ]; then
+            continue
+        fi
+        for FILE in `find "$DIR_TO_SEARCH" -type f -name "*.meta"`; do
+            testmeta.pl "$FILE" &> /dev/null || echo $FILE
+        done
+    done
+done
