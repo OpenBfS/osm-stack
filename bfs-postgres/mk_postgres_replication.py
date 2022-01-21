@@ -5,6 +5,14 @@ import psycopg2
 
 service_name = "PostgreSQL Logical Replication"
 
+
+def convert_lsn(lsn):
+    """Convert Postgres LSN value in form "0/HEX" to integer where HEX is a hexadecimal number."""
+    if lsn[:2] != "0/":
+        raise Exception("Invalid LSN provided")
+    return int(lsn[2:], 16)
+
+
 def process_results_master(replications):
     status = 0
     status_text = "Replication status is unknown."
@@ -45,39 +53,41 @@ max_diff_crit = int(config["thresholds"]["max_diff_critical"])
 max_diff_warn = int(config["thresholds"]["max_diff_warn"])
 
 # on master server
-replications = []
-current_wal_lsn = 0
+master_wal_lsn = 0
+follower_wal_lsn = 0
 connect_str = ""
+offset = -1
 if is_master:
     connect_str = "dbname=osm user=postgres"
 else:
     connect_str = "dbname={} host={} user={} port={} password={}".format(publisher_dbname, publisher_host, publisher_user, publisher_port, publisher_password)
 with psycopg2.connect(connect_str) as conn:
     with conn.cursor() as cur:
-        cur.execute("SELECT  inet_client_addr()")
-        client_addr = cur.fetchone()[0]
         if is_master:
             cur.execute("SELECT state, sent_lsn, write_lsn, flush_lsn, replay_lsn FROM pg_stat_replication")
+            replications = cur.fetchall()
+            process_results_master(replications)
+            exit(0)
         else:
-            cur.execute("SELECT state, sent_lsn, write_lsn, flush_lsn, replay_lsn FROM pg_stat_replication WHERE client_addr = %s", (client_addr,))
-        replications = cur.fetchall()
-
-if is_master:
-    process_results_master(replications)
-    exit(0)
+            cur.execute("SELECT pg_current_wal_lsn()")
+            master_wal_lsn = convert_lsn(cur.fetchone()[0])
 
 # on follower
 with psycopg2.connect("dbname={} user=postgres".format(subscriber_dbname)) as conn:
     with conn.cursor() as cur:
-        cur.execute("SELECT pg_current_wal_lsn()")
-        current_wal_lsn = cur.fetchone()[0]
+        cur.execute("SELECT latest_end_lsn FROM pg_stat_subscription")
+        lsns = cur.fetchall()
+        lsns = [ l[0] for l in lsns ]
+        lsns = [ convert_lsn(l) for l in lsns if l is not None ]
+        if len(lsns) > 0:
+            offset = master_wal_lsn - min(lsns)
 
 status = "3" # unknown
 status_text = "Replication lag is unknown."
-offset = -1
-if len(replications) > 0:
-    offset = replications[0][3] - current_wal_lsn
-if offset > max_diff_crit:
+if offset == -1:
+    status = "2"
+    status_text = "Replication does not exist."
+elif offset > max_diff_crit:
     status = "2"
     status_text = "Replication lag is critical ({} bytes).".format(offset)
 elif offset > max_diff_warn:
@@ -86,9 +96,6 @@ elif offset > max_diff_warn:
 elif offset >= 0:
     status = "0"
     status_text = "Replication lag is fine ({} bytes).".format(offset)
-elif offset == -1:
-    status = "2"
-    status_text = "Replication does not exist."
 values = {"value": offset, "warn": max_diff_warn, "crit": max_diff_crit, "min": 0, "max": ""}
 values_str = "{value};{warn};{crit};{min};{max}".format(**values)
 
