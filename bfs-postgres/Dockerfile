@@ -7,8 +7,8 @@ COPY thirdparty/check-mk-agent_1.5.0p24-1_all.deb /tmp/check-mk-agent.deb
 RUN dpkg -i /tmp/check-mk-agent.deb && rm /tmp/check-mk-agent.deb
 
 COPY thirdparty/mk_postgres /usr/lib/check_mk_agent/plugins/mk_postgres
-COPY mk_postgres_replication.py /usr/lib/check_mk_agent/local/mk_postgres_replication.py
-RUN chmod a+x /usr/lib/check_mk_agent/local/mk_postgres_replication.py
+COPY mk_postgres_replication.py mk_valid_geometries.py /usr/lib/check_mk_agent/local/
+RUN chmod a+x /usr/lib/check_mk_agent/local/*.py
 
 COPY write_pg_replication_checker_conf.sh /
 RUN chmod a+x /write_pg_replication_checker_conf.sh

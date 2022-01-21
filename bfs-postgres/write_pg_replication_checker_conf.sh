@@ -16,6 +16,8 @@ fi
 PGM=${POSTGRES_MASTER_HOST:-postgres-master}
 POSTGRES_DIFF_WARN=${POSTGRES_DIFF_WARN:-31457280}
 POSTGRES_DIFF_CRIT=${POSTGRES_DIFF_CRIT:-125829129}
+POSTGRES_GEOMS_WARN=${POSTGRES_GEOMS_WARN:-1}
+POSTGRES_GEOMS_CRIT=${POSTGRES_GEOMS_CRIT:-100}
 
 cat <<EOF > /etc/pg_replication_checker.conf
 [general]
@@ -36,6 +38,8 @@ dbname = osm
 max_diff_warn = $POSTGRES_DIFF_WARN
 # 120 MB
 max_diff_critical = $POSTGRES_DIFF_CRIT
+broken_geoms_warn = $POSTGRES_GEOMS_WARN
+broken_geoms_critical = $POSTGRES_GEOMS_CRIT
 EOF
 
 echo "Updated ~/.pgpass and /etc/pg_replication_checker.conf"
