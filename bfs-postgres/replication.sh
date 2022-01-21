@@ -32,6 +32,7 @@ host    osm    osm_readonly    $ANYHOST    trust\n"
 if [[ $POSTGRES_MASTER == 1 ]]; then
 	psql $OSM_DB postgres -c "
 		CREATE ROLE $REPL_USER WITH REPLICATION LOGIN PASSWORD '$POSTGRES_MASTER_REPL_PASSWORD';
+                GRANT pg_read_all_stats TO $REPL_USER;
 	"
 
 	HBA=$HBA"host    $OSM_DB    $REPL_USER    $ANYHOST    md5\n"
