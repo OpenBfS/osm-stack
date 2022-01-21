@@ -38,6 +38,7 @@ publisher_dbname = config["publisher"]["dbname"]
 publisher_host = config["publisher"]["host"]
 publisher_port = config["publisher"]["port"]
 publisher_user = config["publisher"]["user"]
+publisher_password = config["publisher"]["password"]
 subscriber_dbname = config["subscriber"]["dbname"]
 is_master = (str(config["general"]["is_master"]) == "1")
 max_diff_crit = int(config["thresholds"]["max_diff_critical"])
@@ -50,7 +51,7 @@ connect_str = ""
 if is_master:
     connect_str = "dbname=osm user=postgres"
 else:
-    connect_str = "dbname={} host={} user={} port={}".format(publisher_dbname, publisher_host, publisher_user, publisher_port)
+    connect_str = "dbname={} host={} user={} port={} password={}".format(publisher_dbname, publisher_host, publisher_user, publisher_port, publisher_password)
 with psycopg2.connect(connect_str) as conn:
     with conn.cursor() as cur:
         cur.execute("SELECT  inet_client_addr()")

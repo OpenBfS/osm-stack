@@ -5,14 +5,12 @@
 if [ ! -v POSTGRES_MASTER ] ; then
     POSTGRES_MASTER=0
 fi
+POSTGRES_MASTER_PORT=${POSTGRES_MASTER_PORT:-5433}
 
 set -euo pipefail
 
-if [[ $POSTGRES_MASTER != 1 ]]; then
-    cat <<EOF > ~/.pgpass
-$POSTGRES_MASTER_HOST:5433:osm:osm:$POSTGRES_OSM_PASSWORD
-EOF
-    chmod 0600 ~/.pgpass
+if [[ $POSTGRES_MASTER == 1 ]]; then
+    POSTGRES_OSM_PASSWORD=${POSTGRES_OSM_PASSWORD:-""}
 fi
 
 PGM=${POSTGRES_MASTER_HOST:-postgres-master}
@@ -26,8 +24,9 @@ is_master = $POSTGRES_MASTER
 [publisher]
 dbname = osm
 host = $PGM
-user = osm 
-port = 5432
+user = repl
+port = $POSTGRES_MASTER_PORT
+password = $POSTGRES_MASTER_REPL_PASSWORD
 
 [subscriber]
 dbname = osm
