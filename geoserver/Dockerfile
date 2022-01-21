@@ -1,4 +1,4 @@
-FROM oscarfonts/geoserver:2.17.0
+FROM oscarfonts/geoserver:2.20.1
 
 RUN rm -R /var/local/geoserver/workspaces/*
 COPY workspaces/ /var/local/geoserver/workspaces/
