@@ -8,7 +8,7 @@ cliArgs:
   maxvehicles: 200 # max number of vehicles
   override: true # allow cli options override (-g, -t and -x)
   path: '/vroom-scripts/bin/' # VROOM path (if not in $PATH)
-  port: 3001 # expressjs port
+  port: 3002 # expressjs port
   router: 'ors' # routing backend (osrm, libosrm or ors)
   timeout: 300000 # milli-seconds
   baseurl: '/' #base url for api
