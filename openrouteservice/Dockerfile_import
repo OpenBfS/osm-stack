@@ -38,8 +38,7 @@ WORKDIR /ors-core
 ENV JAVA_HOME /usr/lib/jvm/java-11-openjdk-amd64
 
 # Build Openrouteservice
-RUN mvn -q -f ./openrouteservice/bfs-pom.xml clean compile assembly:single -DskipTests && \
-    zip -d openrouteservice/target/ors-jar-with-dependencies.jar org/apache/logging/log4j/core/lookup/JndiLookup.class
+RUN mvn -q -f ./openrouteservice/bfs-pom.xml clean compile assembly:single -DskipTests
 
 # Create backup of original configuration
 RUN cp /ors-core/openrouteservice/src/main/resources/app.config /ors-core/openrouteservice/src/main/resources/app.config.orig && \

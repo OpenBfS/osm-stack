@@ -187,9 +187,9 @@ services:
         APP_CONFIG: 'bfs.config'
         JAVA_OPTS: '-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms16g -Xmx16g'
         ORS_ZIP_URL_BASE: 'https://github.com/Nakaner/openrouteservice/archive'
-        ORS_BRANCH_TAG: 'matrix-avoid-areas'
-        ORS_BRANCH_TAG_IN_ZIP: 'matrix-avoid-areas'
-    image: ${REGISTRY_HOST}bfs/openrouteservice-import:matrix-avoid-areas
+        ORS_BRANCH_TAG: 'matrix-avoid-areas-6.7.0'
+        ORS_BRANCH_TAG_IN_ZIP: 'matrix-avoid-areas-6.7.0'
+    image: ${REGISTRY_HOST}bfs/openrouteservice-import:matrix-avoid-areas-6.7.0
     restart: always
     environment:
       - JAVA_OPTS="-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseConcMarkSweepGC -XX:+UseParNewGC -XX:ParallelGCThreads=4 -Xms8g -Xmx28g"
@@ -217,12 +217,12 @@ services:
       dockerfile: 'Dockerfile_app'
       args:
         ORS_ZIP_URL_BASE: 'https://github.com/Nakaner/openrouteservice/archive'
-        ORS_BRANCH_TAG: 'matrix-avoid-areas'
-        ORS_BRANCH_TAG_IN_ZIP: 'matrix-avoid-areas'
+        ORS_BRANCH_TAG: 'matrix-avoid-areas-6.7.0'
+        ORS_BRANCH_TAG_IN_ZIP: 'matrix-avoid-areas-6.7.0'
         APP_CONFIG: 'bfs.config'
         # Die bauzeitliche Umgebungsvariable JAVA_OPTS wird in /usr/local/tomcat/bin/setenv.sh geschrieben und ist somit eine Umgebungsvariable für Tomcat.
         JAVA_OPTS: '-Djava.awt.headless=true -server -XX:TargetSurvivorRatio=75 -XX:SurvivorRatio=64 -XX:MaxTenuringThreshold=3 -XX:+UseG1GC -XX:+ScavengeBeforeFullGC -XX:ParallelGCThreads=4 -Xms1g -Xmx32g'
-    image: ${REGISTRY_HOST}bfs/openrouteservice-app:v6.0.0
+    image: ${REGISTRY_HOST}bfs/openrouteservice-app:matrix-avoid-areas-6.7.0
     restart: always
     environment:
       - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
