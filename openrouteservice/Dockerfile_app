@@ -59,10 +59,9 @@ RUN cd /ors-core && \
 
 COPY tomcat.logrotate /etc/logrotate.d/tomcat
 
-COPY start_tomcat.sh run_and_update.py run_tomcat_update_and_xinetd.sh /
+COPY run_and_update.py run_tomcat_update_and_xinetd.sh /
 
 RUN chmod 755 /run_tomcat_update_and_xinetd.sh && \
-    chmod 755 /start_tomcat.sh && \
     echo "A SSH key will be copied into a Docker volume mounted at /ssh-private-keys in the next step. It will fail if you have not created this file yet! Please see the subsection \"SSH-Schlüssel\" in the chapter \"Routing\" in the setup guide for further details."
 
 # Copy SSH private key

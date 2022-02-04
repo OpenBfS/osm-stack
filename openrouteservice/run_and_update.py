@@ -152,19 +152,21 @@ def fetch_data(arguments, **kwargs):
     return status
 
 
-def start_service(command_args):
+def start_service(command_args, shell=False):
     """Start the service and return a subprocess.Popen instance."""
-    logging.info("Starting the service with \"{}\"".format("\" \"".join(command_args)))
-    proc = subprocess.Popen(command_args)
+    if type(command_args) is list:
+        logging.info("Starting the service with \"{}\"".format("\" \"".join(command_args)))
+    else:
+        logging.info("Starting the service with \"{}\"".format(command_args))
+    proc = subprocess.Popen(command_args, shell=shell)
     return proc
 
 
 def restart_service(proc, args, update_result):
     new_data_dir = update_result.dest_dir
     cmd_args = proc.args
-    if proc.returncode is None:
-        logging.info("Send SIGTERM to the service")
-        proc.terminate()
+    stop_cmd = args.stop_command
+    start_service(stop_cmd, True)
     if update_result.old_dir:
         logging.info("Delete {} and create symlink {} -> {}".format(update_result.old_dir, new_data_dir, args.data_production))
         shutil.rmtree(update_result.old_dir)
@@ -192,6 +194,7 @@ parser.add_argument("-p", "--port", type=int, default=22, help="SSH port")
 parser.add_argument("-L", "--latest-command", type=str, required=True, help="Command to execute on remote host to get the latest directory and lock it")
 parser.add_argument("-U", "--unlock-command", type=str, required=True, help="Command to execute on remote host to release a lock on a directory. The path to the lockfile will be appended to the list of its arguments.")
 parser.add_argument("-r", "--remote-directory", type=str, required=True, help="Parent directory of the data directories on the remtoe host")
+parser.add_argument("-s", "--stop_command", type=str, required=True, help="Command to stop service")
 parser.add_argument("service_command", nargs="+", help="Command of the service to be started")
 args = parser.parse_args()
 
