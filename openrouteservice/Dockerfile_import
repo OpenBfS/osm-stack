@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk
+FROM ubuntu:focal
 
 ENV MAVEN_OPTS="-Dmaven.repo.local=.m2/repository -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=WARN -Dorg.slf4j.simpleLogger.showDateTime=true -Djava.awt.headless=true"
 ENV MAVEN_CLI_OPTS="--batch-mode --errors --fail-at-end --show-version -DinstallAtEnd=true -DdeployAtEnd=true"
@@ -8,17 +8,22 @@ ARG JAVA_OPTS
 ARG ORS_ZIP_URL_BASE=https://github.com/GIScience/openrouteservice/archive
 ARG ORS_BRANCH_TAG=v6.0.0
 ARG ORS_BRANCH_TAG_IN_ZIP=6.0.0
+ARG DEBIAN_FRONTEND=noninteractive
+
 
 # Install required deps
-RUN apt-get update -qq && apt-get install -qq -y bash locales wget maven osmium-tool wget python3-pip jq \
-    build-essential cmake libboost-dev libexpat1-dev zlib1g-dev libbz2-dev zip python3 \
-    && pip3 install osmium
+RUN apt-get update -qq && apt-get install -qq -y openjdk-11-jdk bash locales wget maven osmium-tool jq \
+    build-essential cmake libboost-dev libexpat1-dev zlib1g-dev libbz2-dev zip
+RUN apt-get update && apt-get install -y locales && rm -rf /var/lib/apt/lists/* \
+    && localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8 
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
 ENV LANG en_US.UTF-8
 ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
+RUN apt-get update && apt-get install -qq -y python3-pip python3 && pip3 install osmium
+
 
 # Download Openrouteservice source code and build it
 RUN mkdir -p /ors-core/ && \
