@@ -1,4 +1,4 @@
-FROM openjdk:11-jdk
+FROM ubuntu:focal
 
 # install xinetd to make it possible to add check_mk to the Docker container
 # procps (to be precise: the 'pgrep' binary) is required by the postinst script of check-mk-agent
@@ -19,9 +19,10 @@ ARG ORS_ZIP_URL_BASE
 ARG ORS_BRANCH_TAG
 ARG ORS_BRANCH_TAG_IN_ZIP
 ARG CATALINA_OPTS
+ARG DEBIAN_FRONTEND=noninteractive
 
 # Install required deps
-RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client zip jq logrotate
+RUN apt-get update && apt-get install -qq -y bash locales maven python3 rsync openssh-client zip jq logrotate wget
 
 # Set the locale
 RUN locale-gen en_US.UTF-8
