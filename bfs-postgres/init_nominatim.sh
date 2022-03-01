@@ -2,8 +2,8 @@
 
 set -e
 
-su postgres -c "createuser --superuser nominatim"
-su postgres -c "createdb nominatim"
+createuser --superuser nominatim
+createdb nominatim
 
 psql -U postgres -d nominatim -c "CREATE EXTENSION postgis; CREATE EXTENSION hstore;"
 
