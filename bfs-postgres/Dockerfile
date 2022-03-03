@@ -2,7 +2,7 @@ FROM postgis/postgis:13-3.1
 
 # procpcs provides pgrep which is required by check-mk
 # libkakasi2, libutf8proc2 and icu-devtools are dependencies of postgresql-12-omsl10n
-RUN apt-get update && apt-get upgrade -fy && apt-get install -y xinetd wait-for-it postgresql-plpython3-12 procps libkakasi2 libutf8proc2 icu-devtools python3 python3-psycopg2
+RUN apt-get update && apt-get upgrade -fy && apt-get install -y xinetd wait-for-it postgresql-plpython3-13 procps libkakasi2 libutf8proc2 icu-devtools python3 python3-psycopg2
 COPY thirdparty/check-mk-agent_1.5.0p24-1_all.deb /tmp/check-mk-agent.deb
 RUN dpkg -i /tmp/check-mk-agent.deb && rm /tmp/check-mk-agent.deb
 
