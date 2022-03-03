@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Openrouteservice Maps</title>
+    <base href="/">
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no" name="viewport">
+    <meta content="text/html; charset=UTF-8" http-equiv="content-type"></meta>
+    <meta name="description" content="Openrouteservice is a open source route planner with plenty of features for car, heavy vehicles, hiking and cycling."/>
+    <link href="favicon.ico" rel="shortcut icon" type="image/x-icon">
+    <link rel="stylesheet" href="vendor.1c835c42d8c8c12d.css">
+    <!-- these scripts remain unbuilt as they contain relative paths -->
+    <link href="bower_components/font-awesome/css/font-awesome.min.css" rel="stylesheet"></link>
+    <link href="node_modules/leaflet.heightgraph/dist/L.Control.Heightgraph.min.css" rel="stylesheet"></link>
+    <link rel="stylesheet" href="main.1426292cbea49d45.css">
+    </meta>
+</head>
+<body>
+     <!-- BEGIN: App-Loading Screen. -->
+    <div class="ors-app-loading" ng-if="::false">
+        <!-- BEGIN: Actual animated container. -->
+        <div class="animated-container">
+            <div class="messaging">
+                <p>
+                    <img height="auto" src="img/logo@2x.png" width="200px"/>
+                </p>
+                <p>
+                    <div class="ui active centered inline loader"></div>
+                </p>
+            </div>
+        </div>
+        <!-- END: Actual animated container. -->
+    </div>
+    <!-- END: App-Loading Screen. -->
+    <div class="ors-main" ng-controller="RootController as root">
+        <div class="ors-left">
+            <ors-header class="ors-header"></ors-header>
+            <div class="ors-new-client-info">
+                <b><a href="https://maps.openrouteservice.org" target="_blank">> {{('NEW_CLIENT_INFO' | translate)}} <</a></b>
+            </div>
+            <ors-sidebar class="ors-sidebar" ors-map="root.myOrsMap"></ors-sidebar>
+        </div>
+        <ors-map id="map" class="ors-right" ors-map="root.myOrsMap"></ors-map>
+    </div>
+</body>
+<!-- start auto template tags -->
+<script type="text/javascript" src="traceur_runtime.js"></script>
+<!-- end auto template tags -->
+<script src="vendor.b84a80b90a85987d.js"></script>
+<script src="scripts.1481fe9590dd0258.js"></script>
+</html>
