@@ -344,6 +344,11 @@ services:
     restart: always
     networks:
       - pgnet_osm
+  openrouteservice-demo:
+    build:
+      context: openrouteservice-demo/
+    ports:
+      - 8086:80
 
 
 volumes:
