@@ -4,7 +4,11 @@ ARG NOMINATIM_TARBALL_URL=https://nominatim.org/release/Nominatim-3.4.1.tar.bz2
 
 # PHP is needed to satisfy build dependencies (Nominatim CMake)
 # ca-certificates is needed for Wget to verify nominatim.org
-RUN apt-get update && apt-get upgrade -fy && apt-get install --no-install-recommends -y xinetd wait-for-it wget build-essential cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev zlib1g-dev libxml2-dev libbz2-dev libpq-dev libproj-dev postgresql-server-dev-13 unzip php ca-certificates pyosmium
+RUN apt-get update && apt-get upgrade -fy && apt-get install --no-install-recommends -y xinetd wait-for-it wget build-essential cmake g++ libboost-dev libboost-system-dev libboost-filesystem-dev libexpat1-dev zlib1g-dev libxml2-dev libbz2-dev libpq-dev libproj-dev postgresql-server-dev-13 unzip php ca-certificates pyosmium locales locales-all
+ENV LC_ALL "de_DE.UTF-8"
+ENV LANG "de_DE.UTF-8"
+ENV LANGUAGE "de_DE.UTF-8"
+
 COPY thirdparty/check-mk-agent_1.5.0p24-1_all.deb /tmp/check-mk-agent.deb
 RUN dpkg -i /tmp/check-mk-agent.deb && rm /tmp/check-mk-agent.deb
 
