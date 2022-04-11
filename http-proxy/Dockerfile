@@ -10,3 +10,10 @@ RUN dpkg -i /tmp/check-mk-agent.deb && rm /tmp/check-mk-agent.deb
 RUN sed -e '2ixinetd' -i /usr/local/bin/httpd-foreground
 
 COPY httpd.conf /usr/local/apache2/conf/httpd.conf
+
+# Required to retrieve host IP
+RUN apt-get install -qq -y iproute2
+
+COPY start_httpd.sh /
+
+CMD /bin/bash /start_httpd.sh
