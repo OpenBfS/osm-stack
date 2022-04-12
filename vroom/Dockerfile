@@ -69,7 +69,7 @@ RUN mkdir /vroom-scripts && \
     rm /vroom-scripts.zip && \
     cd vroom-scripts && \
     mkdir /vroom-scripts/bin && \
-    ln -s /vroom-scripts/asap.py /vroom-scripts/bin/vroom
+    ln -s /vroom-scripts/src/asap.py /vroom-scripts/bin/vroom
 
 # Prepare directories
 RUN mkdir -p /var/lib/vroom-express/tmp
