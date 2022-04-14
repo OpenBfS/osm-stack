@@ -40,8 +40,6 @@ RUN mkdir -p /ors-core/ && \
 # Copy osm data file, config and cache if provided (ors will download otherwise)
 COPY $APP_CONFIG /ors-core/openrouteservice/src/main/resources/app.config
 
-COPY ors.diff ors2.diff ors3.diff ors4.diff /ors-core/openrouteservice/
-
 WORKDIR /ors-core
 
 # set JAVA_HOME
