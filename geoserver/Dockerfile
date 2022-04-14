@@ -2,6 +2,7 @@ FROM oscarfonts/geoserver:2.20.1
 
 RUN rm -R /var/local/geoserver/workspaces/*
 COPY workspaces/ /var/local/geoserver/workspaces/
+COPY wmts-capabilities.xml /var/local/geoserver/www
 
 RUN apt-get update && apt-get install -y rsync wait-for-it && apt-get install -y --no-install-recommends postgresql-client
 COPY id_root_ed25519 /ssh-private-keys/id_root_ed25519
