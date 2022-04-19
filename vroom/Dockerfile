@@ -20,7 +20,7 @@ RUN dpkg -i /tmp/check-mk-agent.deb && rm /tmp/check-mk-agent.deb
 
 # Install GPG key for NodeJS, install NodeJS and VROOM dependencies
 RUN apt-get -qq -y install curl wget gnupg unzip git build-essential g++ libssl-dev libasio-dev pkg-config
-RUN apt-get -qq -y install nodejs npm
+RUN apt-get -qq -y install nodejs npm python3 python3-matplotlib python3-requests
 
 # Install VROOM-Express
 RUN mkdir /vroom-express && \
@@ -57,19 +57,22 @@ RUN mkdir /vroom && \
     mv /vroom/vroom-$VROOM_BRANCH_TAG_IN_ZIP/* /vroom && \
     rm /vroom.zip && \
     cd vroom && \
-    make -C /vroom/src
+    make -C /vroom/src && \
+    ln -s /vroom/bin/vroom /usr/local/bin/vroom
 
 # Install VROOM-scripts
 # VROOM-Express allows to specify the directory where the "vroom" binary is located but it does
 # not allow to specify its filename. Therefore, we create a symlink "vroom" pointing to "asap.py".
-RUN mkdir /vroom-scripts && \
+RUN mkdir /vroom-scripts
+COPY asap_wrapper.sh /vroom-scripts
+RUN chmod a+x /vroom-scripts/asap_wrapper.sh && \
     wget --quiet -O /vroom-scripts.zip $VROOM_SCRIPTS_ZIP_URL_BASE/$VROOM_SCRIPTS_BRANCH_TAG.zip && \
     unzip -q -d /vroom-scripts /vroom-scripts.zip && \
     mv /vroom-scripts/vroom-scripts-$VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP/* /vroom-scripts && \
     rm /vroom-scripts.zip && \
     cd vroom-scripts && \
     mkdir /vroom-scripts/bin && \
-    ln -s /vroom-scripts/src/asap.py /vroom-scripts/bin/vroom
+    ln -s /vroom-scripts/asap_wrapper.sh /vroom-scripts/bin/vroom
 
 # Prepare directories
 RUN mkdir -p /var/lib/vroom-express/tmp
