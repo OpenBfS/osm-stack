@@ -251,8 +251,8 @@ services:
         VROOM_EXPRESS_BRANCH_TAG: 'v0.7.0'
         VROOM_EXPRESS_BRANCH_TAG_IN_ZIP: '0.7.0'
         VROOM_SCRIPTS_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom-scripts/archive'
-        VROOM_SCRIPTS_BRANCH_TAG: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
-        VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
+        VROOM_SCRIPTS_BRANCH_TAG: '44c7264d6e31e50e0b1bff589f10f6d01c787221'
+        VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP: '44c7264d6e31e50e0b1bff589f10f6d01c787221'
     image: ${REGISTRY_HOST}bfs/vroom:v1.7.0
     restart: always
     environment:
@@ -272,8 +272,10 @@ services:
         VROOM_EXPRESS_BRANCH_TAG: 'v0.7.0'
         VROOM_EXPRESS_BRANCH_TAG_IN_ZIP: '0.7.0'
         VROOM_SCRIPTS_ZIP_URL_BASE: 'https://github.com/VROOM-Project/vroom-scripts/archive'
-        VROOM_SCRIPTS_BRANCH_TAG: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
-        VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP: 'bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b'
+# We use 44c7264d6e31e50e0b1bff589f10f6d01c787221, not bb1ad9c263cc8e1c4c4df3bd061a70893fc78e6b because it hands over the JSON input for the VROOM binary as string on command line, not via pipe.
+# Our VROOM version does not support reading the input from stdin because VROOM pull request #459 (https://github.com/VROOM-Project/vroom/pull/459) is not merged in our VROOM version.
+        VROOM_SCRIPTS_BRANCH_TAG: '44c7264d6e31e50e0b1bff589f10f6d01c787221'
+        VROOM_SCRIPTS_BRANCH_TAG_IN_ZIP: '44c7264d6e31e50e0b1bff589f10f6d01c787221'
     image: ${REGISTRY_HOST}bfs/vroom:v1.7.0
     restart: always
     environment:
