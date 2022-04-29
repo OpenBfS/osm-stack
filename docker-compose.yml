@@ -56,6 +56,7 @@ services:
       - pgnet_osm
     volumes:
       - geoserver-config:/var/local/geoserver/workspaces/
+    restart: always
   geoserver-slave:
     build:
       context: geoserver
@@ -69,6 +70,53 @@ services:
       - GEOSERVER_REPLICA=1
       - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
       - MASTER_PORT=${MASTER_PORT:-2222}
+  geoserver-osm-master:
+    build:
+      context: geoserver-osm
+      args:
+        GEOSERVER_CONTEXT: ${GEOSERVER_OSM_CONTEXT}
+        GEOSERVER_VERSION: ${GEOSERVER_OSM_VERSION}
+    image: ${REGISTRY_HOST}bfs/geoserver-osm:${GEOSERVER_OSM_VERSION}
+    restart: always
+    environment:
+      - JAVA_OPTS="-DALLOW_ENV_PARAMETRIZATION=true"
+      - PROXY_BASE_URL=http://${MASTER_HOST}:${PROXY_PORT}/geoserver-osm
+      # Replace GEOSERVER_CSRF_DISABLED with DGEOSERVER_CSRF_WHITELIST may be better, but it did not work
+      - GEOSERVER_CSRF_DISABLED=true
+    ports:
+      - 18082:8080
+    networks:
+      - pgnet_osm
+    volumes:
+      - geoserver-osm-data-dir:/opt/geoserver_data
+      - geoserver-osm-ext-dir:/opt/additional_libs
+  geoserver-osm-slave:
+    build:
+      context: geoserver-osm
+      args:
+        GEOSERVER_CONTEXT: ${GEOSERVER_OSM_CONTEXT}
+        GEOSERVER_VERSION: ${GEOSERVER_OSM_VERSION}
+    image: ${REGISTRY_HOST}bfs/geoserver-osm:${GEOSERVER_OSM_VERSION}
+    restart: always
+    environment:
+      - JAVA_OPTS="-DALLOW_ENV_PARAMETRIZATION=true"
+      - PROXY_BASE_URL=http://${PROXY_HOST}:${PROXY_PORT}/geoserver-osm
+      # Replace GEOSERVER_CSRF_DISABLED with DGEOSERVER_CSRF_WHITELIST may be better, but it did not work
+      - GEOSERVER_CSRF_DISABLED=true
+      - GEOSERVER_REPLICA=1
+      - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
+      - MASTER_PORT=${MASTER_PORT:-2222}
+      - PROXY_HOSTNAME=${PROXY_HOST:-localhost}
+      - PROXY_PORT=${PROXY_PORT:-8084}
+      - GEOSERVER_USER=${GEOSERVER_USER}
+      - GEOSERVER_PWD=${GEOSERVER_PWD}
+    ports:
+      - 18082:8080
+    networks:
+      - pgnet_osm
+    volumes:
+      - geoserver-osm-data-dir:/opt/geoserver_data
+      - geoserver-osm-ext-dir:/opt/additional_libs
   osm2pgsql:
     build:
       context: osm2pgsql
@@ -161,6 +209,8 @@ services:
       - ssh-authorized-keys:/ssh-authorized-keys:ro
       - openrouteservice_graphs:/data/openrouteservice
       - geoserver-config:/data/geoserver
+      - geoserver-osm-data-dir:/data/geoserver-datadir
+      - geoserver-osm-ext-dir:/data/geoserver-extdir
     ports:
       - ${MASTER_PORT:-2222}:22
   photon-slave:
@@ -375,6 +425,10 @@ volumes:
   vroom_tmp:
   vroom_tmp_asap:
   geoserver-config:
+  geoserver-osm-data-dir:
+      external: true
+  geoserver-osm-ext-dir:
+      external: true
   postgres-master-dataset:
   postgres-follower-dataset:
   nominatim-postgres-dataset:
