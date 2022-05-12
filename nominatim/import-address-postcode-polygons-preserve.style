@@ -39,13 +39,13 @@
     "keys" : ["boundary"],
     "values" : {
         "administrative" : "main",
-        "postal_code": "main,postcode"
+        "postal_code": "main"
     }
 },
 {
     "keys" : ["postal_code"],
     "values" : {
-        "" : "postcode,ref"
+        "" : "name,postcode,ref"
     }
 },
 {
