@@ -45,31 +45,6 @@ services:
           - postgres
     volumes:
       - postgres-follower-dataset:/var/lib/postgresql/data
-  geoserver-master:
-    build:
-      context: geoserver
-    image: ${REGISTRY_HOST}bfs/geoserver:2.17.0
-    restart: always
-    ports:
-      - 8082:8080
-    networks:
-      - pgnet_osm
-    volumes:
-      - geoserver-config:/var/local/geoserver/workspaces/
-    restart: always
-  geoserver-slave:
-    build:
-      context: geoserver
-    image: ${REGISTRY_HOST}bfs/geoserver:2.17.0
-    restart: always
-    ports:
-      - 8082:8080
-    networks:
-      - pgnet_osm
-    environment:
-      - GEOSERVER_REPLICA=1
-      - MASTER_HOSTNAME=${MASTER_HOST:-localhost}
-      - MASTER_PORT=${MASTER_PORT:-2222}
   geoserver-osm-master:
     build:
       context: geoserver-osm
@@ -424,7 +399,6 @@ volumes:
   openrouteservice_ors_logs:
   vroom_tmp:
   vroom_tmp_asap:
-  geoserver-config:
   geoserver-osm-data-dir:
       external: true
   geoserver-osm-ext-dir:
