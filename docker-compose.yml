@@ -183,7 +183,6 @@ services:
       - photon-data:/data/photon
       - ssh-authorized-keys:/ssh-authorized-keys:ro
       - openrouteservice_graphs:/data/openrouteservice
-      - geoserver-config:/data/geoserver
       - geoserver-osm-data-dir:/data/geoserver-datadir
       - geoserver-osm-ext-dir:/data/geoserver-extdir
     ports:
