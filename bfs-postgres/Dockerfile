@@ -2,6 +2,7 @@ FROM postgis/postgis:13-3.1
 
 # procpcs provides pgrep which is required by check-mk
 # libkakasi2, libutf8proc2 and icu-devtools are dependencies of postgresql-12-omsl10n
+ARG DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get upgrade -fy && apt-get install -y xinetd wait-for-it postgresql-plpython3-13 procps libkakasi2 libutf8proc2 icu-devtools python3 python3-psycopg2 locales locales-all
 ENV LC_ALL "de_DE.UTF-8"
 ENV LANG "de_DE.UTF-8"

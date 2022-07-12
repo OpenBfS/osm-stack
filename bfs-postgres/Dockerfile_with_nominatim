@@ -1,6 +1,7 @@
 FROM postgis/postgis:13-3.1
 
 ARG NOMINATIM_TARBALL_URL=https://nominatim.org/release/Nominatim-3.4.1.tar.bz2
+ARG DEBIAN_FRONTEND=noninteractive
 
 # PHP is needed to satisfy build dependencies (Nominatim CMake)
 # ca-certificates is needed for Wget to verify nominatim.org
