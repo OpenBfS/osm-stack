@@ -28,6 +28,7 @@ services:
       context: bfs-postgres
     image: ${REGISTRY_HOST}bfs/postgis:12-3.0
     restart: always
+    shm_size: 1g
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_FOLLOWER_PASSWORD}
       - POSTGRES_MASTER_HOST=${MASTER_HOST:-postgres-master}
