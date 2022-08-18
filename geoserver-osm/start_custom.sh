@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 ADDITIONAL_LIBS_DIR=/opt/additional_libs/
 
@@ -28,7 +28,7 @@ wait_postgresql_ready()
 
 echo '$GEOSERVER_REPLICA = '$GEOSERVER_REPLICA
 #replication ...if SERVICE_HOST
-if [[ $GEOSERVER_REPLICA == 1 ]]; then
+if [ $GEOSERVER_REPLICA -eq 1 ]; then
     echo '....replicate dataDir from MASTER_HOST'
     bash replicate.sh &
 fi
